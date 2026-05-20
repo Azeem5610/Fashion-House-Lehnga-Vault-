@@ -1,0 +1,358 @@
+/* ===== Cost Estimation Engine — AdminCostEstimation.css ===== */
+
+/* ── Stats Row ── */
+.ce-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ce-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.ce-stat-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ce-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  margin-bottom: 4px;
+}
+
+.ce-stat-label {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* ── Toolbar ── */
+.ce-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.ce-search {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.ce-search input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  transition: all var(--transition-base);
+}
+
+.ce-search input:focus {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px rgba(194, 24, 91, 0.1);
+}
+
+.ce-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* ── Estimation Cards Grid ── */
+.ce-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.ce-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.ce-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-gold);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.ce-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.ce-card:hover::before {
+  opacity: 1;
+}
+
+.ce-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.ce-card-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.ce-card-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.ce-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Cost Breakdown Rows ── */
+.ce-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.ce-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  padding: 4px 0;
+}
+
+.ce-breakdown-label {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ce-breakdown-label .ce-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ce-breakdown-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Totals Section ── */
+.ce-totals {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.ce-totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.82rem;
+}
+
+.ce-totals-row.base {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.ce-totals-row.margin {
+  color: var(--info);
+}
+
+.ce-totals-row.selling {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ce-totals-row.profit {
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  margin-top: 6px;
+}
+
+.ce-totals-row.profit.positive {
+  color: var(--success);
+}
+
+.ce-totals-row.profit.negative {
+  color: var(--error);
+}
+
+/* ── Modal Form Grid ── */
+.ce-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ce-modal-grid .form-group {
+  margin-bottom: 0;
+}
+
+.ce-modal-full {
+  grid-column: 1 / -1;
+}
+
+/* ── Cost Input Section ── */
+.ce-cost-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.ce-cost-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* ── Extra Costs ── */
+.ce-extra-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.ce-extra-row .form-input {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+
+.ce-extra-remove {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--error);
+  background: rgba(211, 47, 47, 0.08);
+  border: 1px solid rgba(211, 47, 47, 0.15);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.ce-extra-remove:hover {
+  background: rgba(211, 47, 47, 0.15);
+}
+
+/* ── Live Preview ── */
+.ce-live-preview {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.ce-live-preview-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.ce-live-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 3px 0;
+}
+
+.ce-live-row.total {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--rose);
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+
+/* ── Chart Container ── */
+.ce-chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.ce-chart-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ce-grid {
+    grid-template-columns: 1fr;
+  }
+  .ce-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ce-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ce-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}

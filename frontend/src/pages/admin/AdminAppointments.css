@@ -1,0 +1,128 @@
+/* ===== Appointments Management — AdminAppointments.css ===== */
+
+.apt-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.apt-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: center;
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.apt-stat-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+.apt-stat-value { font-size: 1.5rem; font-weight: 800; font-family: var(--font-heading); margin-bottom: 2px; }
+.apt-stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+/* ── Toolbar ── */
+.apt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.apt-filter-select {
+  padding: 10px 32px 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D4A843' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+/* ── Appointment Card ── */
+.apt-list { display: flex; flex-direction: column; gap: 12px; }
+
+.apt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.3s ease both;
+}
+
+.apt-card:hover { border-color: var(--border-light); box-shadow: var(--shadow-md); }
+
+.apt-date-block {
+  width: 64px;
+  height: 68px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-gold-subtle);
+  border: 1px solid var(--border-gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.apt-date-day { font-size: 1.4rem; font-weight: 800; font-family: var(--font-heading); color: var(--gold); line-height: 1; }
+.apt-date-month { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+
+.apt-info { flex: 1; min-width: 0; }
+.apt-info-name { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 2px; }
+.apt-info-detail { font-size: 0.82rem; color: var(--text-secondary); display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+.apt-info-notes { font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
+
+.apt-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.apt-type-tag.online { background: rgba(96, 165, 250, 0.12); color: var(--info); border: 1px solid rgba(96, 165, 250, 0.2); }
+.apt-type-tag.physical { background: rgba(212, 168, 67, 0.12); color: var(--gold); border: 1px solid rgba(212, 168, 67, 0.2); }
+
+.apt-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+/* ── Status badges ── */
+.apt-status {
+  display: inline-flex;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.apt-status.pending { background: rgba(251, 191, 36, 0.12); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.2); }
+.apt-status.approved { background: rgba(52, 211, 153, 0.12); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.2); }
+.apt-status.rejected { background: rgba(248, 113, 113, 0.12); color: var(--error); border: 1px solid rgba(248, 113, 113, 0.2); }
+.apt-status.completed { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; border: 1px solid rgba(139, 92, 246, 0.2); }
+.apt-status.cancelled { background: rgba(107, 102, 128, 0.12); color: var(--text-muted); border: 1px solid rgba(107, 102, 128, 0.2); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .apt-card { flex-direction: column; align-items: flex-start; }
+  .apt-actions { width: 100%; justify-content: flex-end; }
+  .apt-stats { grid-template-columns: repeat(3, 1fr); }
+  .apt-toolbar { flex-direction: column; align-items: stretch; }
+}
+
+@media (max-width: 480px) {
+  .apt-stats { grid-template-columns: repeat(2, 1fr); }
+}

@@ -1,0 +1,232 @@
+/* ===== Notification Dropdown — NotificationDropdown.css ===== */
+
+.ntf-wrapper {
+  position: relative;
+}
+
+/* ── Bell Button ── */
+.ntf-bell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.ntf-bell:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: var(--rose-50);
+}
+
+.ntf-bell.has-unread {
+  animation: pulse-rose 2s infinite;
+}
+
+/* ── Unread Badge ── */
+.ntf-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--rose);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-card);
+  line-height: 1;
+}
+
+/* ── Dropdown Panel ── */
+.ntf-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  max-height: 480px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 50px rgba(28, 10, 0, 0.12);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+/* ── Header ── */
+.ntf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ntf-header h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ntf-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ntf-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.ntf-action-btn:hover {
+  color: var(--rose);
+  background: var(--rose-50);
+}
+
+/* ── List ── */
+.ntf-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* ── Item ── */
+.ntf-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+  border-bottom: 1px solid var(--bg-secondary);
+}
+
+.ntf-item:last-child {
+  border-bottom: none;
+}
+
+.ntf-item:hover {
+  background: var(--bg-secondary);
+}
+
+.ntf-item.unread {
+  background: var(--rose-bg-light);
+}
+
+.ntf-item.unread:hover {
+  background: var(--rose-bg);
+}
+
+.ntf-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.ntf-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ntf-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.ntf-message {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ntf-time {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ── Unread dot ── */
+.ntf-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rose);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ── Delete ── */
+.ntf-delete {
+  opacity: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.ntf-item:hover .ntf-delete {
+  opacity: 1;
+}
+
+.ntf-delete:hover {
+  color: var(--error);
+  background: rgba(211, 47, 47, 0.08);
+}
+
+/* ── Empty State ── */
+.ntf-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.ntf-empty p {
+  font-size: 0.82rem;
+  margin-top: 8px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .ntf-dropdown {
+    width: calc(100vw - 20px);
+    right: -10px;
+  }
+}

@@ -1,93 +1,37 @@
-.fabric-page {
-  min-height: calc(100vh - 70px);
-  padding-bottom: 60px;
-}
+.fabric-page { min-height: calc(100vh - 60px); padding-top: 60px; padding-bottom: 60px; }
 
 .fabric-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  padding: 8px 0;
-  margin-top: 24px;
-  transition: color var(--transition-base);
-  cursor: pointer;
-  background: none;
+  display: inline-flex; align-items: center; gap: 6px; color: #6B4C3B;
+  font-size: 0.88rem; padding: 8px 0; margin-top: 24px; transition: color 0.25s ease; cursor: pointer; background: none;
 }
+.fabric-back:hover { color: #C2185B; }
 
-.fabric-back:hover {
-  color: var(--gold);
-}
-
-.fabric-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
-  margin-top: 16px;
-}
+.fabric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; margin-top: 16px; }
 
 .fabric-card {
-  position: relative;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all 0.4s ease;
-  text-decoration: none;
-  display: block;
+  position: relative; border-radius: 10px; overflow: hidden;
+  background: #FFFFFF; border: 1px solid #F0E6D6; cursor: pointer;
+  transition: all 0.35s ease; text-decoration: none; display: block;
 }
+.fabric-card:hover { transform: translateY(-3px); border-color: #F48FB1; box-shadow: 0 8px 30px rgba(194,24,91,0.08); }
 
-.fabric-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--gold);
-  box-shadow: var(--shadow-gold);
-}
-
-.fabric-card-visual {
-  height: 160px;
-  position: relative;
-  overflow: hidden;
-}
+.fabric-card-visual { height: 160px; position: relative; overflow: hidden; }
 
 .fabric-card-bg {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: rgba(255, 255, 255, 0.15);
-  transition: transform 0.4s ease;
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; color: rgba(255,255,255,0.8); transition: transform 0.4s ease;
 }
+.fabric-card:hover .fabric-card-bg { transform: scale(1.1) rotate(3deg); }
 
-.fabric-card:hover .fabric-card-bg {
-  transform: scale(1.15) rotate(5deg);
-}
+.fabric-card-body { padding: 18px; }
+.fabric-card-body h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 4px; color: #1C0A00; }
+.fabric-card-body p { color: #A0776A; font-size: 0.82rem; }
 
-.fabric-card-bg:nth-child(1) { background: linear-gradient(135deg, #2D1B3D, #5E2D5E); }
-
-.fabric-card-body {
-  padding: 20px;
-}
-
-.fabric-card-body h3 {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  margin-bottom: 4px;
-}
-
-.fabric-card-body p {
-  color: var(--text-muted);
-  font-size: 0.82rem;
-}
-
-/* Each fabric type gets a unique gradient */
-.fabric-0 .fabric-card-bg { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); }
-.fabric-1 .fabric-card-bg { background: linear-gradient(135deg, #2d1b3d, #4a1942, #6b2d5b); }
-.fabric-2 .fabric-card-bg { background: linear-gradient(135deg, #1b2d1b, #2d5e2d, #1a5e3b); }
-.fabric-3 .fabric-card-bg { background: linear-gradient(135deg, #3d2d1b, #5e4a2d, #8b6a1a); }
-.fabric-4 .fabric-card-bg { background: linear-gradient(135deg, #1b1b3d, #2d2d5e, #4a3d8b); }
-.fabric-5 .fabric-card-bg { background: linear-gradient(135deg, #3d1b1b, #5e2d2d, #8b1a1a); }
-.fabric-6 .fabric-card-bg { background: linear-gradient(135deg, #1b3d3d, #2d5e5e, #1a8b7a); }
+/* Fabric gradients — warm rose palette */
+.fabric-0 .fabric-card-bg { background: linear-gradient(135deg, #F8BBD0, #F06292, #EC407A); }
+.fabric-1 .fabric-card-bg { background: linear-gradient(135deg, #E1BEE7, #CE93D8, #AB47BC); }
+.fabric-2 .fabric-card-bg { background: linear-gradient(135deg, #C8E6C9, #81C784, #4CAF50); }
+.fabric-3 .fabric-card-bg { background: linear-gradient(135deg, #FFE0B2, #FFB74D, #FF9800); }
+.fabric-4 .fabric-card-bg { background: linear-gradient(135deg, #BBDEFB, #64B5F6, #42A5F5); }
+.fabric-5 .fabric-card-bg { background: linear-gradient(135deg, #FFCDD2, #EF9A9A, #EF5350); }
+.fabric-6 .fabric-card-bg { background: linear-gradient(135deg, #B2DFDB, #80CBC4, #26A69A); }

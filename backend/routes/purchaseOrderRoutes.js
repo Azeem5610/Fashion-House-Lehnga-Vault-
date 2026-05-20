@@ -1,14 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const { protect, adminOnly } = require("../middleware/authMiddleware");
+const { protect, roleAuth } = require("../middleware/authMiddleware");
 const {
   createPurchaseOrder,
   getAllPurchaseOrders,
+  getPurchaseOrder,
   updatePurchaseOrderStatus,
+  deletePurchaseOrder,
 } = require("../controllers/purchaseOrderController");
 
-router.post("/", protect, adminOnly, createPurchaseOrder);
-router.get("/", protect, adminOnly, getAllPurchaseOrders);
-router.put("/:id/status", protect, adminOnly, updatePurchaseOrderStatus);
+const auth = [protect, roleAuth("superadmin", "inventoryManager")];
+
+router.post("/", ...auth, createPurchaseOrder);
+router.get("/", ...auth, getAllPurchaseOrders);
+router.get("/:id", ...auth, getPurchaseOrder);
+router.put("/:id/status", ...auth, updatePurchaseOrderStatus);
+router.delete("/:id", ...auth, deletePurchaseOrder);
 
 module.exports = router;

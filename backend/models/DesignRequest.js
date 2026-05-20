@@ -21,8 +21,17 @@ const designRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "contacted", "in-progress", "completed"],
+      enum: ["pending", "contacted", "quoted", "approved", "in-production", "completed", "rejected"],
       default: "pending",
+    },
+    // ── Admin pricing & response fields ──
+    adminNotes: { type: String, default: "" },
+    quotedPrice: { type: Number, default: 0 },
+    estimatedDays: { type: Number, default: 0 },
+    // ── Link to converted order ──
+    convertedOrder: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
     },
   },
   { timestamps: true }

@@ -1,39 +1,74 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { GiDress, GiSewingMachine, GiPhotoCamera } from "react-icons/gi";
 import { HiArrowRight, HiSparkles, HiShieldCheck, HiChatAlt2, HiHeart } from "react-icons/hi";
 import "./WelcomePage.css";
 
 const WelcomePage = () => {
+  const sectionsRef = useRef([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    sectionsRef.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const addRef = (el) => {
+    if (el && !sectionsRef.current.includes(el)) {
+      sectionsRef.current.push(el);
+    }
+  };
+
   return (
     <div className="welcome-page">
       {/* Hero */}
       <section className="welcome-hero">
-        <div className="container">
+        <div className="container welcome-hero-content">
           <div className="welcome-hero-badge">
-            <HiSparkles /> Premium Bridal Collection
+            ✦ Premium Bridal Collection
           </div>
           <h1>
             Discover Your Dream<br />
-            <span className="gold">Bridal Lehnga</span>
+            <span className="rose-accent">Bridal Lehnga</span>
           </h1>
           <p>
             Handcrafted with love, designed for your most special day.
             Choose from ready-made, customized, or create from your vision.
           </p>
+          <div className="welcome-hero-actions">
+            <Link to="/category/ready-made/fabrics" className="btn btn-primary btn-lg">
+              Shop Collection
+            </Link>
+            <Link to="/design-from-picture" className="btn btn-ghost btn-lg">
+              Upload Your Design
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="welcome-categories">
-        <div className="container">
+      <section className="welcome-categories" ref={addRef}>
+        <div className="container reveal-on-scroll" ref={addRef}>
           <div className="welcome-categories-title">
-            <h2 className="gradient-text">Explore Our Collections</h2>
+            <h2>Explore Our Collections</h2>
             <p>Three ways to find your perfect bridal lehnga</p>
           </div>
 
           <div className="categories-grid">
-            <Link to="/category/ready-made/fabrics" className="category-card animate-slideUp">
+            <Link to="/category/ready-made/fabrics" className="category-card">
               <div className="category-card-visual">
                 <div className="category-card-gradient ready-made">
                   <GiDress />
@@ -48,7 +83,7 @@ const WelcomePage = () => {
               </div>
             </Link>
 
-            <Link to="/category/customized/fabrics" className="category-card animate-slideUp" style={{ animationDelay: '0.1s' }}>
+            <Link to="/category/customized/fabrics" className="category-card">
               <div className="category-card-visual">
                 <div className="category-card-gradient customized">
                   <GiSewingMachine />
@@ -63,7 +98,7 @@ const WelcomePage = () => {
               </div>
             </Link>
 
-            <Link to="/design-from-picture" className="category-card animate-slideUp" style={{ animationDelay: '0.2s' }}>
+            <Link to="/design-from-picture" className="category-card">
               <div className="category-card-visual">
                 <div className="category-card-gradient design-pic">
                   <GiPhotoCamera />
@@ -82,7 +117,7 @@ const WelcomePage = () => {
       </section>
 
       {/* Features */}
-      <section className="welcome-features">
+      <section className="welcome-features reveal-on-scroll" ref={addRef}>
         <div className="container">
           <div className="features-grid">
             <div className="feature-item">

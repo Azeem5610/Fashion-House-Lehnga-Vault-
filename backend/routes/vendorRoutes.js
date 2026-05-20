@@ -1,16 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const { protect, adminOnly } = require("../middleware/authMiddleware");
+const { protect, roleAuth } = require("../middleware/authMiddleware");
 const {
   createVendor,
   getAllVendors,
+  getVendor,
   updateVendor,
   deleteVendor,
+  generateWhatsAppOrder,
+  getVendorAnalytics,
 } = require("../controllers/vendorController");
 
-router.post("/", protect, adminOnly, createVendor);
-router.get("/", protect, adminOnly, getAllVendors);
-router.put("/:id", protect, adminOnly, updateVendor);
-router.delete("/:id", protect, adminOnly, deleteVendor);
+const auth = [protect, roleAuth("superadmin", "inventoryManager")];
+
+router.get("/analytics", ...auth, getVendorAnalytics);
+router.post("/whatsapp-order", ...auth, generateWhatsAppOrder);
+
+router.post("/", ...auth, createVendor);
+router.get("/", ...auth, getAllVendors);
+router.get("/:id", ...auth, getVendor);
+router.put("/:id", ...auth, updateVendor);
+router.delete("/:id", ...auth, deleteVendor);
 
 module.exports = router;

@@ -1,0 +1,6 @@
+/* RegisterPage shares LoginPage.css styles — same split-panel layout */
+/* This file adds any register-specific overrides */
+
+.register-extra-fields .form-group {
+  margin-bottom: 16px;
+}

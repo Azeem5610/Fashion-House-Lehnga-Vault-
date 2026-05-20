@@ -1,0 +1,367 @@
+/* ===== Order Tracking Page — OrderTrackingPage.css ===== */
+
+.order-tracking-page {
+  min-height: calc(100vh - 60px);
+  padding-top: 60px;
+  padding-bottom: 80px;
+}
+
+/* ── Order Info Card ── */
+.tracking-order-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 28px;
+  animation: fadeInUp 0.5s ease both;
+}
+
+.tracking-order-image {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+}
+
+.tracking-order-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tracking-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--text-light);
+}
+
+.tracking-order-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracking-order-details h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.tracking-order-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.tracking-order-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tracking-estimated {
+  color: var(--rose) !important;
+  font-weight: 600;
+}
+
+.tracking-order-id {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  font-family: monospace;
+}
+
+/* ── Progress Ring ── */
+.tracking-progress-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.progress-circle {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 3;
+}
+
+.progress-fill {
+  fill: none;
+  stroke: var(--rose);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s ease;
+}
+
+.progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--rose);
+  font-family: var(--font-heading);
+}
+
+/* ── Current Stage Banner ── */
+.tracking-current-stage {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--gradient-gold-subtle);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 36px;
+  animation: fadeInUp 0.5s ease 0.1s both;
+}
+
+.tracking-current-stage.complete {
+  background: rgba(46, 125, 50, 0.06);
+  border-color: rgba(46, 125, 50, 0.15);
+}
+
+.tracking-current-icon {
+  font-size: 2rem;
+  color: var(--rose);
+  line-height: 1;
+}
+
+.tracking-current-stage.complete .tracking-current-icon {
+  color: var(--success);
+}
+
+.tracking-current-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.tracking-current-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+}
+
+/* ── Timeline ── */
+.tracking-timeline {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tracking-stage {
+  display: flex;
+  gap: 20px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.tracking-stage-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 36px;
+}
+
+.tracking-stage-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  transition: all var(--transition-base);
+}
+
+/* Stage status styles */
+.stage-completed .tracking-stage-dot {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--success);
+  border: 2px solid var(--success);
+}
+
+.stage-in-progress .tracking-stage-dot {
+  background: rgba(194, 24, 91, 0.1);
+  color: var(--rose);
+  border: 2px solid var(--rose);
+  animation: pulse-rose 2s infinite;
+}
+
+.stage-pending .tracking-stage-dot {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+}
+
+.stage-skipped .tracking-stage-dot {
+  background: rgba(160, 119, 106, 0.1);
+  color: var(--text-muted);
+  border: 2px solid var(--text-light);
+}
+
+.stage-empty {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.stage-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--rose);
+  animation: pulse-rose 1.5s ease infinite;
+}
+
+/* Connector line */
+.tracking-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: var(--border);
+  transition: background var(--transition-base);
+}
+
+.tracking-connector.filled {
+  background: var(--success);
+}
+
+/* Content */
+.tracking-stage-content {
+  flex: 1;
+  padding-bottom: 28px;
+}
+
+.tracking-stage-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.tracking-stage-emoji {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.tracking-stage-header h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.stage-pending .tracking-stage-header h4 {
+  color: var(--text-muted);
+}
+
+.tracking-stage-badge {
+  display: inline-flex;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tracking-stage-badge.completed {
+  background: rgba(46, 125, 50, 0.08);
+  color: var(--success);
+  border: 1px solid rgba(46, 125, 50, 0.15);
+}
+
+.tracking-stage-badge.in-progress {
+  background: rgba(194, 24, 91, 0.08);
+  color: var(--rose);
+  border: 1px solid rgba(194, 24, 91, 0.15);
+}
+
+.tracking-stage-badge.pending {
+  background: rgba(160, 119, 106, 0.06);
+  color: var(--text-muted);
+  border: 1px solid rgba(160, 119, 106, 0.12);
+}
+
+.tracking-stage-badge.skipped {
+  background: rgba(160, 119, 106, 0.08);
+  color: var(--text-light);
+  border: 1px solid rgba(160, 119, 106, 0.15);
+}
+
+.tracking-stage-dates {
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.tracking-stage-notes {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  margin-top: 6px;
+  font-style: italic;
+  border-left: 3px solid var(--rose);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .tracking-order-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  .tracking-order-meta {
+    justify-content: center;
+  }
+  .tracking-progress-ring {
+    margin: 0 auto;
+  }
+  .tracking-timeline {
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .tracking-stage-header {
+    flex-wrap: wrap;
+  }
+  .tracking-stage-dates {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

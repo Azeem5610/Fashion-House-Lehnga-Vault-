@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { GiDiamondRing } from "react-icons/gi";
-import { HiMail, HiLockClosed, HiUser } from "react-icons/hi";
+import { HiMail, HiLockClosed, HiCheck, HiSparkles, HiStar, HiShieldCheck } from "react-icons/hi";
 import "./LoginPage.css";
 
 const LoginPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login, signup } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,19 +20,9 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      let data;
-      if (isLogin) {
-        data = await login(email, password);
-      } else {
-        if (!name.trim()) {
-          setError("Name is required");
-          setLoading(false);
-          return;
-        }
-        data = await signup(name, email, password);
-      }
-      // Redirect based on role
-      if (data.role === "admin") {
+      const data = await login(email, password);
+      // Role-aware redirect
+      if (["superadmin", "inventoryManager", "productionManager", "tailor"].includes(data.role)) {
         navigate("/admin");
       } else {
         navigate("/");
@@ -47,88 +35,106 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-header">
-            <div className="login-logo">
-              <GiDiamondRing />
+      {/* Left Brand Panel */}
+      <div className="login-brand-panel">
+        <div className="login-particles">
+          <div className="login-particle" />
+          <div className="login-particle" />
+          <div className="login-particle" />
+          <div className="login-particle" />
+          <div className="login-particle" />
+        </div>
+
+        <div className="login-brand-content">
+          <div className="login-brand-icon">
+            <GiDiamondRing />
+          </div>
+          <h1><span>Fashion House</span></h1>
+          <p>Your premier destination for exquisite bridal couture. Crafted with passion, designed for perfection.</p>
+
+          <div className="login-brand-features">
+            <div className="login-brand-feature">
+              <div className="login-brand-feature-icon"><HiSparkles /></div>
+              <span>Premium Handcrafted Bridal Designs</span>
             </div>
-            <h1><span>Fashion House</span></h1>
-            <p>Premium Bridal Collection</p>
+            <div className="login-brand-feature">
+              <div className="login-brand-feature-icon"><HiStar /></div>
+              <span>7 Exquisite Fabric Collections</span>
+            </div>
+            <div className="login-brand-feature">
+              <div className="login-brand-feature-icon"><HiShieldCheck /></div>
+              <span>Custom Orders & Design from Picture</span>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <div className="login-toggle">
-            <button
-              className={isLogin ? "active" : ""}
-              onClick={() => { setIsLogin(true); setError(""); }}
-            >
-              Sign In
-            </button>
-            <button
-              className={!isLogin ? "active" : ""}
-              onClick={() => { setIsLogin(false); setError(""); }}
-            >
-              Sign Up
-            </button>
-          </div>
+      {/* Right Form Panel */}
+      <div className="login-form-panel">
+        <div className="login-container">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="login-header-mobile-logo">
+                <GiDiamondRing />
+              </div>
+              <h1>Welcome Back</h1>
+              <p>
+                Don't have an account?{" "}
+                <Link to="/register">Create one</Link>
+              </p>
+            </div>
 
-          {error && <div className="login-error">{error}</div>}
+            {error && <div className="login-error">{error}</div>}
 
-          <form className="login-form" onSubmit={handleSubmit}>
-            {!isLogin && (
+            <form className="login-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">Email Address</label>
                 <div className="input-wrapper">
-                  <HiUser className="input-icon" />
+                  <HiMail className="input-icon" />
                   <input
+                    id="login-email"
                     className="form-input"
-                    type="text"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
               </div>
-            )}
 
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <div className="input-wrapper">
-                <HiMail className="input-icon" />
-                <input
-                  className="form-input"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <div className="input-wrapper">
+                  <HiLockClosed className="input-icon" />
+                  <input
+                    id="login-password"
+                    className="form-input"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <div className="input-wrapper">
-                <HiLockClosed className="input-icon" />
-                <input
-                  className="form-input"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
+              <button
+                id="login-submit"
+                type="submit"
+                className={`btn btn-gold btn-lg login-submit ${loading ? "loading" : ""}`}
+                disabled={loading}
+              >
+                {loading && <span className="btn-spinner" />}
+                {loading ? "Signing In..." : "Sign In"}
+              </button>
+            </form>
 
-            <button
-              type="submit"
-              className="btn btn-gold btn-lg login-submit"
-              disabled={loading}
-            >
-              {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
-            </button>
-          </form>
+            <div className="login-footer">
+              New to Fashion House?{" "}
+              <Link to="/register">Create an account</Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

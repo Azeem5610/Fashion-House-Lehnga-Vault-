@@ -1,0 +1,157 @@
+.wishlist-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 16px 60px;
+}
+
+.wl-tabs {
+  display: flex;
+  gap: 4px;
+  background: #FFF8F0;
+  border: 1px solid #F0E6D6;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+
+.wl-tab {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #A0776A;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.wl-tab:hover { color: #1C0A00; }
+.wl-tab.active { background: #C2185B; color: white; }
+
+.wl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.wl-product-card {
+  background: #FFFFFF;
+  border: 1px solid #F0E6D6;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.4s ease both;
+  position: relative;
+}
+
+.wl-product-card:hover {
+  border-color: #F48FB1;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(194, 24, 91, 0.08);
+}
+
+.wl-product-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.wl-product-img-placeholder {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #FFF8F0, #FCE4EC);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+.wl-product-body { padding: 16px; }
+
+.wl-product-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1C0A00;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wl-product-meta { font-size: 0.78rem; color: #A0776A; margin-bottom: 8px; }
+
+.wl-product-price {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #C2185B;
+}
+
+.wl-product-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+.wl-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D32F2F;
+  font-size: 0.9rem;
+  transition: all 0.25s ease;
+  border: 1px solid #F0E6D6;
+  cursor: pointer;
+}
+
+.wl-remove-btn:hover { background: #D32F2F; color: white; transform: scale(1.1); }
+
+.wl-collections { display: flex; flex-direction: column; gap: 24px; }
+
+.wl-collection-card {
+  background: #FFFFFF;
+  border: 1px solid #F0E6D6;
+  border-radius: 10px;
+  padding: 20px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.wl-collection-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
+.wl-collection-name { font-family: 'Playfair Display', serif; font-size: 1.08rem; font-weight: 700; color: #1C0A00; }
+.wl-collection-count { font-size: 0.76rem; color: #A0776A; background: #FFF8F0; padding: 3px 10px; border-radius: 50px; }
+.wl-collection-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.wl-collection-empty { padding: 24px; text-align: center; color: #A0776A; font-size: 0.83rem; }
+
+.wl-compare { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+.wl-compare-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(194,24,91,0.15);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.wl-compare-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 14px; }
+.wl-compare-field { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F0E6D6; font-size: 0.82rem; }
+.wl-compare-label { color: #A0776A; }
+.wl-compare-value { color: #1C0A00; font-weight: 600; }
+
+.wl-new-collection { display: flex; gap: 10px; margin-bottom: 20px; }
+.wl-new-collection input { flex: 1; }
+
+@media (max-width: 768px) {
+  .wl-grid { grid-template-columns: repeat(2, 1fr); }
+  .wl-compare { grid-template-columns: 1fr; }
+  .wl-collection-products { grid-template-columns: repeat(2, 1fr); }
+  .wl-tabs { overflow-x: auto; }
+}
+
+@media (max-width: 480px) {
+  .wl-grid { grid-template-columns: 1fr; }
+}

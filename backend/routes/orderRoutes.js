@@ -6,11 +6,13 @@ const {
   getMyOrders,
   getAllOrders,
   updateOrderStatus,
+  cancelMyOrder,
 } = require("../controllers/orderController");
 
 router.post("/", protect, createOrder);
 router.get("/my", protect, getMyOrders);
 router.get("/", protect, adminOnly, getAllOrders);
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
+router.put("/:id/cancel", protect, cancelMyOrder);
 
 module.exports = router;

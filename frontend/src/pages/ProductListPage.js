@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import API from "../utils/api";
-import { HiArrowLeft, HiSortDescending } from "react-icons/hi";
+import { HiArrowLeft, HiSortDescending, HiHeart, HiOutlineHeart } from "react-icons/hi";
 import { GiDress } from "react-icons/gi";
+import { toast } from "react-toastify";
 import "./ProductListPage.css";
 
 const ProductListPage = () => {
@@ -13,6 +14,31 @@ const ProductListPage = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("newest");
+  const [wishlistIds, setWishlistIds] = useState(new Set());
+
+  // Fetch wishlist product IDs
+  useEffect(() => {
+    API.get("/wishlist").then(r => {
+      const ids = (r.data.products || []).map(p => p._id || p);
+      setWishlistIds(new Set(ids));
+    }).catch(() => {});
+  }, []);
+
+  const toggleWishlist = async (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      if (wishlistIds.has(productId)) {
+        await API.delete(`/wishlist/remove/${productId}`);
+        setWishlistIds(prev => { const s = new Set(prev); s.delete(productId); return s; });
+        toast.success("Removed from wishlist");
+      } else {
+        await API.post("/wishlist/add", { productId });
+        setWishlistIds(prev => new Set(prev).add(productId));
+        toast.success("Added to wishlist!");
+      }
+    } catch (err) { toast.error(err.response?.data?.message || "Failed"); }
+  };
 
   const decodedFabric = decodeURIComponent(fabricType);
 
@@ -122,6 +148,13 @@ const ProductListPage = () => {
                   <span className={`product-card-category ${product.category}`}>
                     {product.category}
                   </span>
+                  <button
+                    className="product-card-wishlist"
+                    onClick={(e) => toggleWishlist(e, product._id)}
+                    title={wishlistIds.has(product._id) ? "Remove from wishlist" : "Add to wishlist"}
+                  >
+                    {wishlistIds.has(product._id) ? <HiHeart style={{ color: "var(--rose)" }} /> : <HiOutlineHeart />}
+                  </button>
                 </div>
                 <div className="product-card-body">
                   <h3>{product.name}</h3>

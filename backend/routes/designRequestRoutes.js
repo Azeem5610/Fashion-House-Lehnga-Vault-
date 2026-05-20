@@ -7,11 +7,16 @@ const {
   getMyDesignRequests,
   getAllDesignRequests,
   updateDesignRequestStatus,
+  sendQuote,
+  convertToOrder,
 } = require("../controllers/designRequestController");
 
 router.post("/", protect, upload.array("images", 5), createDesignRequest);
 router.get("/my", protect, getMyDesignRequests);
 router.get("/", protect, adminOnly, getAllDesignRequests);
 router.put("/:id/status", protect, adminOnly, updateDesignRequestStatus);
+router.put("/:id/quote", protect, adminOnly, sendQuote);
+router.post("/:id/convert", protect, adminOnly, convertToOrder);
 
 module.exports = router;
+

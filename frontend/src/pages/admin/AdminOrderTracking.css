@@ -1,0 +1,391 @@
+/* ===== Admin Order Tracking — AdminOrderTracking.css ===== */
+
+/* ── Stats Grid ── */
+.ot-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.ot-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: center;
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.ot-stat-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.ot-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  margin-bottom: 2px;
+}
+
+.ot-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* ── Toolbar ── */
+.ot-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.ot-filter {
+  max-width: 200px;
+  font-size: 0.85rem;
+}
+
+/* ── Card List ── */
+.ot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ot-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.3s ease both;
+}
+
+.ot-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Card Header ── */
+.ot-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.ot-card-header:hover {
+  background: var(--bg-secondary);
+}
+
+.ot-card-image {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+}
+
+.ot-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ot-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.ot-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ot-card-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ot-order-id {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: monospace;
+  background: var(--bg-secondary);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.ot-card-detail {
+  display: flex;
+  gap: 14px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+/* ── Progress Bar ── */
+.ot-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.ot-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.ot-progress-fill {
+  height: 100%;
+  background: var(--gradient-gold);
+  border-radius: var(--radius-full);
+  transition: width 0.6s ease;
+}
+
+.ot-progress-text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--rose);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Stage Badge ── */
+.ot-stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ot-stage-badge.active {
+  background: rgba(194, 24, 91, 0.08);
+  color: var(--rose);
+  border: 1px solid rgba(194, 24, 91, 0.15);
+}
+
+.ot-stage-badge.complete {
+  background: rgba(46, 125, 50, 0.08);
+  color: var(--success);
+  border: 1px solid rgba(46, 125, 50, 0.15);
+}
+
+.ot-expand-btn {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+/* ── Stages Panel ── */
+.ot-stages-panel {
+  border-top: 1px solid var(--border);
+  padding: 20px 22px;
+  background: var(--bg-secondary);
+  animation: slideDown 0.3s ease;
+}
+
+.ot-stages-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ot-stage-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.ot-stage-row:hover {
+  border-color: var(--border-light);
+}
+
+.ot-stage-row.completed {
+  border-left: 3px solid var(--success);
+}
+
+.ot-stage-row.in-progress {
+  border-left: 3px solid var(--rose);
+  background: rgba(194, 24, 91, 0.02);
+}
+
+.ot-stage-row.skipped {
+  border-left: 3px solid var(--text-light);
+  opacity: 0.65;
+}
+
+.ot-stage-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.ot-stage-row.completed .ot-stage-icon {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--success);
+}
+
+.ot-stage-row.in-progress .ot-stage-icon {
+  background: rgba(194, 24, 91, 0.1);
+  color: var(--rose);
+}
+
+.ot-stage-row.pending .ot-stage-icon {
+  background: var(--bg-secondary);
+  color: var(--text-light);
+}
+
+.ot-stage-row.skipped .ot-stage-icon {
+  background: rgba(160, 119, 106, 0.1);
+  color: var(--text-muted);
+}
+
+.ot-pending-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.ot-stage-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ot-stage-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.ot-stage-dates {
+  display: flex;
+  gap: 14px;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+}
+
+.ot-stage-note {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 3px;
+}
+
+.ot-stage-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Panel Footer ── */
+.ot-panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.ot-notes-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.ot-notes-input .form-input {
+  flex: 1;
+  height: 36px;
+  font-size: 0.82rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ot-card-header {
+    flex-wrap: wrap;
+  }
+  .ot-card-progress {
+    width: 100%;
+    order: 5;
+    margin-top: 8px;
+  }
+  .ot-stage-badge {
+    order: 4;
+  }
+  .ot-stage-row {
+    flex-wrap: wrap;
+  }
+  .ot-stage-actions {
+    width: 100%;
+    margin-top: 8px;
+    justify-content: flex-end;
+  }
+  .ot-panel-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ot-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .ot-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ot-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ot-filter {
+    max-width: 100%;
+  }
+}

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../utils/api";
-import { HiArrowLeft, HiCube, HiPhotograph, HiCalendar } from "react-icons/hi";
+import { HiArrowLeft, HiCube, HiPhotograph, HiCalendar, HiTruck, HiX } from "react-icons/hi";
 import { GiDress } from "react-icons/gi";
+import { toast } from "react-toastify";
 import "./MyOrdersPage.css";
 
 const MyOrdersPage = () => {
@@ -41,6 +42,17 @@ const MyOrdersPage = () => {
       month: "short",
       year: "numeric",
     });
+  };
+
+  const cancelOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    try {
+      await API.put(`/orders/${orderId}/cancel`);
+      toast.success("Order cancelled");
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to cancel order");
+    }
   };
 
   return (
@@ -102,10 +114,28 @@ const MyOrdersPage = () => {
                       <span>📍 {order.shippingAddress?.city}</span>
                     </div>
                   </div>
-                  <div className="order-card-right">
-                    <span className={getStatusClass(order.status)}>{order.status}</span>
-                    <div className="order-price">Rs. {order.totalPrice?.toLocaleString()}</div>
-                  </div>
+                    <div className="order-card-right">
+                      <span className={getStatusClass(order.status)}>{order.status}</span>
+                      <div className="order-price">Rs. {order.totalPrice?.toLocaleString()}</div>
+                      <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                        <Link
+                          to={`/track-order/${order._id}`}
+                          className="btn btn-sm btn-outline"
+                          style={{ fontSize: '0.72rem', gap: 4 }}
+                        >
+                          <HiTruck /> Track
+                        </Link>
+                        {(order.status === "pending" || order.status === "confirmed") && (
+                          <button
+                            className="btn btn-sm btn-danger"
+                            style={{ fontSize: '0.72rem', gap: 4, display: 'flex', alignItems: 'center' }}
+                            onClick={() => cancelOrder(order._id)}
+                          >
+                            <HiX /> Cancel
+                          </button>
+                        )}
+                      </div>
+                    </div>
                 </div>
               ))
             )}
@@ -135,7 +165,24 @@ const MyOrdersPage = () => {
                         {formatDate(req.createdAt)}
                       </div>
                     </div>
-                    <span className={getStatusClass(req.status)}>{req.status}</span>
+                    <div style={{ textAlign: "right" }}>
+                      <span className={getStatusClass(req.status)}>{req.status}</span>
+                      {req.quotedPrice > 0 && (
+                        <div style={{ marginTop: 6, fontWeight: 700, color: "var(--rose)", fontSize: "0.95rem" }}>
+                          Rs.{req.quotedPrice.toLocaleString()}
+                          {req.estimatedDays > 0 && (
+                            <div style={{ fontWeight: 400, fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                              Est. {req.estimatedDays} days
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {req.adminNotes && (
+                        <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 4, fontStyle: "italic", maxWidth: 200 }}>
+                          "{req.adminNotes}"
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

@@ -1,0 +1,116 @@
+.profile-page {
+  min-height: calc(100vh - 60px);
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.profile-card {
+  background: #FFFFFF;
+  border: 1px solid #F0E6D6;
+  border-radius: 14px;
+  padding: 24px 28px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #F0E6D6;
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #C2185B, #D4A843);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: 'Playfair Display', Georgia, serif;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  color: #1C0A00;
+  margin: 0 0 2px;
+}
+
+.profile-info p {
+  font-size: 0.85rem;
+  color: #A0776A;
+  margin: 0 0 6px;
+}
+
+.profile-role-badge {
+  display: inline-block;
+  background: rgba(194, 24, 91, 0.08);
+  color: #C2185B;
+  border: 1px solid rgba(194, 24, 91, 0.15);
+  padding: 2px 10px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.profile-details {
+  padding-top: 18px;
+}
+
+.profile-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(240, 230, 214, 0.5);
+}
+
+.profile-detail-row:last-child {
+  border-bottom: none;
+}
+
+.profile-detail-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #A0776A;
+  font-weight: 500;
+}
+
+.profile-detail-value {
+  font-size: 0.9rem;
+  color: #1C0A00;
+  font-weight: 500;
+}
+
+.profile-edit-form {
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 18px;
+  }
+  .profile-card-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
