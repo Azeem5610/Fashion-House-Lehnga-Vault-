@@ -48,6 +48,7 @@ const WishlistPage = lazy(() => import("./pages/WishlistPage"));
 const MoodboardPage = lazy(() => import("./pages/MoodboardPage"));
 const OrderTrackingPage = lazy(() => import("./pages/OrderTrackingPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const VirtualTryOnPage = lazy(() => import("./pages/VirtualTryOnPage"));
 
 // Admin role list
 const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
@@ -112,6 +113,9 @@ function AppContent() {
           } />
           <Route path="/profile" element={
             <ProtectedRoute><ProfilePage /></ProtectedRoute>
+          } />
+          <Route path="/virtual-try-on" element={
+            <ProtectedRoute><VirtualTryOnPage /></ProtectedRoute>
           } />
 
           {/* Customer — Order Tracking */}

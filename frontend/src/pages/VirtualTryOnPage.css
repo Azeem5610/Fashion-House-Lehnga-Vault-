@@ -1,0 +1,441 @@
+/* ===== VIRTUAL TRY-ON PAGE ===== */
+.tryon-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-bottom: 60px;
+}
+
+/* ── Page Header ── */
+.tryon-page-header {
+  position: relative;
+  text-align: center;
+  padding: 48px 20px 32px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFF0F5 0%, var(--bg-primary) 100%);
+  border-bottom: 1px solid var(--border);
+}
+.tryon-header-inner { position: relative; z-index: 1; }
+.tryon-header-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--rose-50); border: 1px solid var(--rose-100);
+  color: var(--rose); padding: 6px 16px; border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.tryon-page-title {
+  font-family: var(--font-display); font-size: 32px; font-weight: 800;
+  color: var(--text-primary); margin-bottom: 10px; line-height: 1.2;
+}
+.tryon-page-subtitle { color: var(--text-secondary); font-size: 15px; }
+.tryon-header-orb {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(194,24,91,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.tryon-orb-1 { width: 320px; height: 320px; top: -80px; left: -60px; }
+.tryon-orb-2 { width: 280px; height: 280px; bottom: -80px; right: -40px; }
+
+/* ── Three-Column Layout ── */
+.tryon-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 28px auto 0;
+  padding: 0 20px;
+  align-items: start;
+}
+
+/* ── Panels ── */
+.tryon-left-panel,
+.tryon-right-panel {
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* ── Upload Panel ── */
+.tryon-upload-panel {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.tryon-mode-toggle {
+  display: flex; gap: 8px; margin-bottom: 16px;
+  background: var(--bg-secondary); border-radius: var(--radius-md); padding: 4px;
+}
+.tryon-mode-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); transition: all var(--transition-base);
+  border: 1.5px solid transparent;
+}
+.tryon-mode-btn.active {
+  background: var(--bg-card); color: var(--rose);
+  border-color: var(--rose-100); box-shadow: var(--shadow-sm);
+}
+.tryon-dropzone {
+  border: 2px dashed var(--border); border-radius: var(--radius-lg);
+  padding: 32px 20px; text-align: center; cursor: pointer;
+  transition: all var(--transition-base); background: var(--bg-secondary);
+  min-height: 200px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+}
+.tryon-dropzone:hover, .tryon-dropzone.dragging {
+  border-color: var(--rose); background: var(--rose-50);
+}
+.tryon-dropzone.uploading { cursor: wait; }
+.tryon-dropzone-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--rose-50); display: flex; align-items: center; justify-content: center;
+  color: var(--rose); font-size: 22px; margin-bottom: 4px;
+}
+.tryon-dropzone-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.tryon-dropzone-sub { font-size: 13px; color: var(--text-secondary); }
+.tryon-link { color: var(--rose); text-decoration: underline; }
+.tryon-dropzone-hint { font-size: 11px; color: var(--text-muted); }
+.tryon-uploaded-preview {
+  position: relative; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px;
+}
+.tryon-uploaded-preview img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.tryon-remove-photo {
+  position: absolute; top: 8px; right: 8px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); color: var(--error);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+.tryon-remove-photo:hover { background: var(--error); color: #fff; }
+.tryon-photo-badge {
+  position: absolute; bottom: 8px; left: 8px;
+  background: rgba(46,125,50,0.9); color: #fff;
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full);
+}
+.tryon-tips {
+  background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px;
+  margin-top: 12px;
+}
+.tryon-tip-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
+.tryon-tips ul { padding-left: 14px; }
+.tryon-tips li { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; list-style: disc; }
+.tryon-mannequin-info {
+  text-align: center; padding: 24px 16px; background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+.tryon-mannequin-icon { font-size: 40px; margin-bottom: 8px; }
+.tryon-mannequin-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.tryon-mannequin-info p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Progress ring */
+.tryon-upload-progress { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.tryon-progress-ring { position: relative; width: 56px; height: 56px; }
+.tryon-progress-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.tryon-progress-ring circle {
+  fill: none; stroke: var(--border); stroke-width: 4;
+}
+.tryon-progress-ring circle:last-child {
+  stroke: var(--rose); stroke-dasharray: 125.6px;
+  stroke-linecap: round; transition: stroke-dashoffset 0.3s ease;
+}
+.tryon-progress-ring span {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 11px; font-weight: 700; color: var(--rose);
+}
+.tryon-upload-progress p { font-size: 13px; color: var(--text-secondary); }
+
+/* ── Adjustment Controls ── */
+.tryon-adjustments {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.tryon-adj-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+}
+.tryon-adj-icon { color: var(--rose); font-size: 18px; }
+.tryon-reset-btn {
+  margin-left: auto; display: flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; color: var(--text-secondary);
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 4px 10px;
+  transition: all var(--transition-fast);
+}
+.tryon-reset-btn:hover { border-color: var(--rose); color: var(--rose); }
+.tryon-slider-group { margin-bottom: 18px; }
+.tryon-slider-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.tryon-slider-icon { font-size: 14px; color: var(--rose); min-width: 16px; text-align: center; }
+.tryon-slider-value {
+  margin-left: auto; font-size: 12px; font-weight: 700;
+  color: var(--rose); background: var(--rose-50);
+  padding: 2px 8px; border-radius: var(--radius-full);
+}
+.tryon-slider {
+  width: 100%; height: 4px; border-radius: var(--radius-full);
+  appearance: none; outline: none; cursor: pointer;
+  border: none; padding: 0; transition: background 0.2s;
+}
+.tryon-slider::-webkit-slider-thumb {
+  appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--rose); box-shadow: 0 2px 8px rgba(194,24,91,0.3);
+  cursor: pointer; border: 2px solid #fff; transition: transform 0.15s;
+}
+.tryon-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.tryon-slider-minmax {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text-muted); margin-top: 4px;
+}
+.tryon-skin-tones { display: flex; gap: 8px; margin-bottom: 6px; }
+.tryon-skin-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid transparent;
+  position: relative; transition: all var(--transition-fast); cursor: pointer;
+}
+.tryon-skin-btn:hover { transform: scale(1.15); }
+.tryon-skin-btn.active { border-color: var(--rose); box-shadow: 0 0 0 2px rgba(194,24,91,0.2); }
+.tryon-skin-check {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: var(--rose); text-shadow: 0 0 3px #fff;
+}
+.tryon-skin-labels {
+  display: flex; gap: 8px;
+}
+.tryon-skin-labels span { flex: 1; font-size: 10px; text-align: center; color: var(--text-muted); }
+.tryon-skin-active-label { color: var(--rose) !important; font-weight: 700; }
+.tryon-canvas-tip {
+  display: flex; align-items: center; gap: 6px; margin-top: 4px;
+  font-size: 11px; color: var(--text-muted); padding: 10px;
+  background: var(--bg-secondary); border-radius: var(--radius-md);
+}
+
+/* ── Canvas Center Panel ── */
+.tryon-center-panel { display: flex; flex-direction: column; gap: 12px; }
+.tryon-canvas-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-md);
+}
+.tryon-canvas-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+.tryon-toolbar-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.tryon-toolbar-actions { display: flex; gap: 8px; }
+.tryon-toolbar-btn {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  background: var(--bg-card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); font-size: 16px; transition: all var(--transition-fast);
+}
+.tryon-toolbar-btn:hover { border-color: var(--rose); color: var(--rose); }
+.tryon-canvas-wrapper {
+  position: relative; width: 100%; min-height: 560px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #FFFBF5 0%, #FFF0F5 100%);
+}
+.tryon-canvas-wrapper canvas { display: block; max-width: 100%; }
+.tryon-canvas-hint {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(8px);
+  border: 1px solid var(--border); border-radius: var(--radius-full);
+  padding: 8px 20px; font-size: 12px; color: var(--text-secondary);
+  white-space: nowrap; pointer-events: none;
+}
+.tryon-instructions {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px 20px;
+}
+.tryon-instructions span { font-size: 12px; color: var(--text-muted); }
+
+/* ── Sidebar ── */
+.tryon-sidebar {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.tryon-sidebar-section {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.tryon-section-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px;
+}
+.tryon-section-label svg { color: var(--rose); }
+
+/* Lehnga Card */
+.tryon-lehnga-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 12px;
+  border: 1px solid var(--border); position: relative;
+}
+.tryon-lehnga-img-wrap {
+  width: 64px; height: 80px; border-radius: var(--radius-md);
+  overflow: hidden; flex-shrink: 0; background: var(--bg-tertiary);
+  display: flex; align-items: center; justify-content: center;
+}
+.tryon-lehnga-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.tryon-lehnga-placeholder { font-size: 28px; }
+.tryon-lehnga-info { flex: 1; min-width: 0; }
+.tryon-lehnga-name { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tryon-lehnga-fabric { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.tryon-lehnga-price { font-size: 14px; font-weight: 800; color: var(--rose); margin-bottom: 6px; }
+.tryon-lehnga-sizes { display: flex; gap: 4px; flex-wrap: wrap; }
+.tryon-size-chip {
+  font-size: 10px; font-weight: 600; background: var(--rose-50);
+  color: var(--rose); padding: 2px 8px; border-radius: var(--radius-full);
+  border: 1px solid var(--rose-100);
+}
+.tryon-change-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--rose-50); color: var(--rose);
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  transition: all var(--transition-fast);
+}
+.tryon-change-btn:hover { background: var(--rose); color: #fff; }
+.tryon-pick-design-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 18px; border: 2px dashed var(--border); border-radius: var(--radius-lg);
+  color: var(--text-muted); font-size: 13px; font-weight: 600;
+  background: var(--bg-secondary); transition: all var(--transition-base);
+}
+.tryon-pick-design-btn:hover { border-color: var(--rose); color: var(--rose); background: var(--rose-50); }
+
+/* Action Buttons */
+.tryon-actions { display: flex; flex-direction: column; gap: 8px; }
+.tryon-action-btn {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; border-radius: var(--radius-md); font-size: 13px;
+  font-weight: 600; transition: all var(--transition-base);
+  border: 1.5px solid var(--border); color: var(--text-secondary);
+  background: var(--bg-card);
+}
+.tryon-action-btn:hover:not(:disabled) { border-color: var(--rose); color: var(--rose); background: var(--rose-50); }
+.tryon-action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.tryon-action-save   { background: var(--rose); color: #fff; border-color: var(--rose); }
+.tryon-action-save:hover:not(:disabled) { background: var(--rose-dark); box-shadow: var(--shadow-gold); transform: translateY(-1px); }
+.tryon-action-btn.done { background: rgba(46,125,50,0.08); color: var(--success); border-color: rgba(46,125,50,0.2); }
+.tryon-action-btn.done:hover { background: rgba(46,125,50,0.08); transform: none; }
+.tryon-btn-spinner {
+  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+
+/* Sessions list */
+.tryon-sessions-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+.tryon-session-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 8px; cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.tryon-session-item:hover { border-color: var(--rose-100); background: var(--rose-50); }
+.tryon-session-item.active { border-color: var(--rose); background: var(--rose-50); }
+.tryon-session-thumb {
+  width: 44px; height: 52px; border-radius: var(--radius-sm);
+  overflow: hidden; background: var(--bg-tertiary); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.tryon-session-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.tryon-session-meta { flex: 1; min-width: 0; }
+.tryon-session-name { font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tryon-session-sub { font-size: 11px; color: var(--text-muted); }
+.tryon-session-delete {
+  width: 28px; height: 28px; border-radius: var(--radius-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  color: var(--text-muted); transition: all var(--transition-fast);
+}
+.tryon-session-delete:hover { color: var(--error); background: rgba(211,47,47,0.08); }
+.tryon-sessions-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 16px 0; line-height: 1.7; }
+
+/* ── Product Picker Modal ── */
+.tryon-picker-modal { max-width: 860px !important; max-height: 88vh !important; }
+.tryon-picker-filters { display: flex; gap: 12px; margin-bottom: 20px; }
+.tryon-picker-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  max-height: 52vh; overflow-y: auto; padding-right: 4px;
+}
+.tryon-picker-card {
+  border-radius: var(--radius-lg); overflow: hidden; cursor: pointer;
+  border: 2px solid var(--border); background: var(--bg-card);
+  transition: all var(--transition-base); position: relative;
+}
+.tryon-picker-card:hover { border-color: var(--rose); transform: translateY(-3px); box-shadow: var(--shadow-card-hover); }
+.tryon-picker-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.tryon-picker-placeholder { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 36px; background: var(--bg-secondary); }
+.tryon-picker-info { padding: 10px; }
+.tryon-picker-name { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tryon-picker-fabric { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.tryon-picker-price { font-size: 13px; font-weight: 800; color: var(--rose); }
+.tryon-picker-overlay {
+  position: absolute; inset: 0; background: rgba(194,24,91,0.85);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 14px;
+  opacity: 0; transition: opacity var(--transition-base);
+}
+.tryon-picker-card:hover .tryon-picker-overlay { opacity: 1; }
+.tryon-picker-empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+.tryon-picker-empty span { font-size: 40px; display: block; margin-bottom: 8px; }
+
+/* ── Modals (moodboard / order) ── */
+.tryon-modal { max-width: 500px !important; }
+.tryon-modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+.tryon-mood-list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
+.tryon-mood-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-md); cursor: pointer;
+  transition: all var(--transition-fast); background: var(--bg-card);
+}
+.tryon-mood-item:hover { border-color: var(--rose); background: var(--rose-50); }
+.tryon-mood-item.active { border-color: var(--rose); background: var(--rose-50); }
+.tryon-mood-preview { width: 44px; height: 44px; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tryon-mood-preview img { width: 100%; height: 100%; object-fit: cover; }
+.tryon-mood-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.tryon-mood-meta { font-size: 11px; color: var(--text-muted); }
+.tryon-mood-check { margin-left: auto; color: var(--rose); font-size: 18px; }
+.tryon-no-boards { font-size: 13px; color: var(--text-muted); padding: 20px 0; text-align: center; }
+.tryon-no-boards a { color: var(--rose); }
+.tryon-order-summary {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 16px;
+  margin-bottom: 20px; font-size: 14px; font-weight: 600; color: var(--text-primary);
+}
+.tryon-order-price { color: var(--rose); font-size: 16px; font-weight: 800; }
+.tryon-order-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-top: 1px solid var(--border); margin-top: 4px;
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+}
+.tryon-order-total span:last-child { color: var(--rose); font-size: 20px; font-weight: 800; }
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .tryon-layout { grid-template-columns: 280px 1fr 280px; }
+  .tryon-picker-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 960px) {
+  .tryon-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "left"
+      "center"
+      "right";
+  }
+  .tryon-left-panel  { grid-area: left; }
+  .tryon-center-panel{ grid-area: center; }
+  .tryon-right-panel { grid-area: right; }
+  .tryon-picker-grid { grid-template-columns: repeat(2, 1fr); }
+  .tryon-page-title  { font-size: 24px; }
+}
+
+@media (max-width: 480px) {
+  .tryon-page-title  { font-size: 20px; }
+  .tryon-picker-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .tryon-picker-filters { flex-direction: column; }
+  .tryon-canvas-wrapper { min-height: 360px; }
+}

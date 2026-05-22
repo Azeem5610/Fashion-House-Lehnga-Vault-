@@ -9,15 +9,17 @@ const Appointment = require("../models/Appointment");
 const Review = require("../models/Review");
 const Employee = require("../models/Employee");
 const Task = require("../models/Task");
+const VirtualTryOn = require("../models/VirtualTryOn");
 
 // ─── DASHBOARD STATS ───────────────────────────────────────────
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [totalOrders, totalProducts, totalVendors, totalCustomers] = await Promise.all([
+    const [totalOrders, totalProducts, totalVendors, totalCustomers, totalTryOnSessions] = await Promise.all([
       Order.countDocuments(),
       Product.countDocuments(),
       Vendor.countDocuments(),
       User.countDocuments({ role: "customer" }),
+      VirtualTryOn.countDocuments(),
     ]);
 
     // Revenue calculation
@@ -47,6 +49,7 @@ exports.getDashboardStats = async (req, res) => {
       pendingOrders,
       recentOrders,
       lowStockProducts,
+      totalTryOnSessions,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -192,6 +195,7 @@ exports.getErpOverview = async (req, res) => {
       activeEmployeeTasks,
       inProgressTracking,
       overdueTracking,
+      totalTryOnSessions,
     ] = await Promise.all([
       DesignRequest.countDocuments({ status: { $in: ["pending", "contacted"] } }),
       Appointment.countDocuments({ status: "pending" }),
@@ -203,6 +207,7 @@ exports.getErpOverview = async (req, res) => {
         currentStage: { $ne: "Delivered" },
         estimatedCompletion: { $lt: now },
       }),
+      VirtualTryOn.countDocuments(),
     ]);
 
     // Average review rating
@@ -219,6 +224,7 @@ exports.getErpOverview = async (req, res) => {
       activeEmployeeTasks,
       inProgressTracking,
       overdueTracking,
+      totalTryOnSessions,
       averageRating: ratingResult[0]?.avg ? Math.round(ratingResult[0].avg * 10) / 10 : 0,
       totalApprovedReviews: ratingResult[0]?.count || 0,
     });

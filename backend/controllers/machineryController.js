@@ -49,9 +49,12 @@ exports.createMachine = async (req, res, next) => {
       purchaseDate, purchaseCost, condition, location, notes,
     } = req.body;
 
+    const isOperational = (condition === "needs-repair" || condition === "out-of-service") ? false : true;
+
     const machine = await Machinery.create({
       name, type, serialNumber, manufacturer, model,
       purchaseDate, purchaseCost, condition, location, notes,
+      isOperational
     });
 
     res.status(201).json(machine);
@@ -66,9 +69,13 @@ exports.createMachine = async (req, res, next) => {
 // ── UPDATE machine ──
 exports.updateMachine = async (req, res, next) => {
   try {
+    const updateData = { ...req.body };
+    if (updateData.condition && (updateData.condition === "needs-repair" || updateData.condition === "out-of-service")) {
+      updateData.isOperational = false;
+    }
     const machine = await Machinery.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     if (!machine) return res.status(404).json({ message: "Machine not found" });

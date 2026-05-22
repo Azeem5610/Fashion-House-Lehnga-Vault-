@@ -321,6 +321,35 @@ ul, ol {
   font-size: 14px;
 }
 
+/* ===== SIZE BUTTONS (global — used in Admin + Product Detail) ===== */
+.size-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.83rem;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.size-btn:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+.size-btn.active {
+  background: var(--rose);
+  color: var(--text-white);
+  border-color: var(--rose);
+  box-shadow: 0 4px 15px rgba(194, 24, 91, 0.2);
+}
+
 /* ===== FORM STYLES — Ivory & Rose ===== */
 .form-group {
   margin-bottom: 20px;

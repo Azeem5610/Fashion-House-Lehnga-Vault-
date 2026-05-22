@@ -26,6 +26,7 @@ const ProductDetailPage = () => {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [moodboards, setMoodboards] = useState([]);
   const [showMbDropdown, setShowMbDropdown] = useState(false);
+  const [orderPlacedSuccess, setOrderPlacedSuccess] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -102,7 +103,11 @@ const ProductDetailPage = () => {
       });
       toast.success("Order placed successfully!");
       setShowOrderForm(false);
-      navigate("/my-orders");
+      if (product.category === "customized") {
+        setOrderPlacedSuccess(true);
+      } else {
+        navigate("/my-orders");
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to place order");
     }
@@ -298,21 +303,40 @@ const ProductDetailPage = () => {
             {/* Customized: Order Form + WhatsApp CTA */}
             {product.category === "customized" && (
               <>
-                {!showOrderForm ? (
+                {orderPlacedSuccess ? (
+                  <div className="order-success-whatsapp" style={{
+                    background: "rgba(76, 175, 80, 0.08)",
+                    border: "1px solid rgba(76, 175, 80, 0.2)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: 20,
+                    marginTop: 15,
+                    animation: "fadeInUp 0.3s ease both"
+                  }}>
+                    <h3 style={{ color: "#4CAF50", display: "flex", alignItems: "center", gap: 8, fontSize: "1.1rem", marginBottom: 10 }}>
+                      🎉 Order Placed!
+                    </h3>
+                    <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.5 }}>
+                      Your order for customized design has been created.
+                      To discuss sizing, color preferences, and other customization details, please message us on WhatsApp with your order reference.
+                    </p>
+                    <button className="btn btn-whatsapp btn-lg" style={{ width: "100%", marginBottom: 10 }} onClick={handleWhatsAppCustomize}>
+                      <FaWhatsapp /> Discuss on WhatsApp
+                    </button>
+                    <button className="btn btn-outline btn-lg" style={{ width: "100%" }} onClick={() => navigate("/my-orders")}>
+                      View My Orders
+                    </button>
+                  </div>
+                ) : !showOrderForm ? (
                   <div className="whatsapp-contact">
                     <p>
-                      Love this design? Place your order directly or contact us on WhatsApp
-                      to discuss customizations like size, color, fabric, and design modifications.
+                      Love this design? Place your order directly to start production, and you can coordinate details with us afterward.
                     </p>
                     <button
                       className="btn btn-gold btn-lg"
-                      style={{ width: "100%", marginBottom: 10 }}
+                      style={{ width: "100%" }}
                       onClick={() => setShowOrderForm(true)}
                     >
                       Place Order
-                    </button>
-                    <button className="btn btn-whatsapp btn-lg" style={{ width: "100%" }} onClick={handleWhatsAppCustomize}>
-                      <FaWhatsapp /> Discuss on WhatsApp
                     </button>
                   </div>
                 ) : (

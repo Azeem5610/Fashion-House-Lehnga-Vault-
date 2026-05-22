@@ -74,7 +74,30 @@ const AdminEmployees = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const getInitials = (name) => name ? name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "??";
+  const getInitials = (name) => {
+    if (!name || !name.trim()) return "??";
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    const initials = parts.map(n => n.charAt(0)).join("").toUpperCase().slice(0, 2);
+    return initials || name.charAt(0).toUpperCase() || "??";
+  };
+
+  // Get attendance stats for current month
+  const getAttendanceStats = (emp) => {
+    if (!emp.attendance || emp.attendance.length === 0) return null;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const monthRecords = emp.attendance.filter(a => {
+      const d = new Date(a.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+    if (monthRecords.length === 0) return null;
+    const present = monthRecords.filter(a => a.status === "present").length;
+    const absent = monthRecords.filter(a => a.status === "absent").length;
+    const leave = monthRecords.filter(a => a.status === "leave").length;
+    const halfDay = monthRecords.filter(a => a.status === "half-day").length;
+    return { present, absent, leave, halfDay, total: monthRecords.length };
+  };
   const formatType = (t) => EMP_TYPES.find(e => e.value === t)?.label || t;
 
   // Employee CRUD
@@ -214,6 +237,25 @@ const AdminEmployees = () => {
                       {emp.specialization && <div className="emp-detail-row"><HiClipboardList /> {emp.specialization}</div>}
                       <div className="emp-detail-row"><HiCash /> Rs.{(emp.salary || 0).toLocaleString()}/month</div>
                     </div>
+                    {/* Attendance Summary */}
+                    {(() => {
+                      const stats = getAttendanceStats(emp);
+                      return stats ? (
+                        <div className="emp-attendance-summary">
+                          <HiCalendar style={{ color: 'var(--text-muted)', fontSize: '0.85rem', flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>This Month:</span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--success)', fontWeight: 600 }}>{stats.present}P</span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--error)', fontWeight: 600 }}>{stats.absent}A</span>
+                          {stats.leave > 0 && <span style={{ fontSize: '0.72rem', color: 'var(--warning)', fontWeight: 600 }}>{stats.leave}L</span>}
+                          {stats.halfDay > 0 && <span style={{ fontSize: '0.72rem', color: 'var(--info)', fontWeight: 600 }}>{stats.halfDay}H</span>}
+                        </div>
+                      ) : (
+                        <div className="emp-attendance-summary">
+                          <HiCalendar style={{ color: 'var(--text-muted)', fontSize: '0.85rem', flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No attendance this month</span>
+                        </div>
+                      );
+                    })()}
                     <div className="emp-card-footer">
                       <span className={`emp-pending-badge ${emp.pendingTasks > 0 ? "has-tasks" : "no-tasks"}`}>
                         {emp.pendingTasks > 0 ? `${emp.pendingTasks} pending` : "No pending tasks"}

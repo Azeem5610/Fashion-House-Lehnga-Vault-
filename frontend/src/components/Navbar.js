@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { HiMenu, HiX } from "react-icons/hi";
+import { HiMenu, HiX, HiSparkles } from "react-icons/hi";
 import NotificationDropdown from "./NotificationDropdown";
 import "./Navbar.css";
 
@@ -66,6 +66,16 @@ const Navbar = () => {
                   <li><Link to="/my-orders" className={isActive("/my-orders")} onClick={() => setMenuOpen(false)}>My Orders</Link></li>
                   <li><Link to="/appointments" className={isActive("/appointments")} onClick={() => setMenuOpen(false)}>Appointments</Link></li>
                   <li><Link to="/wishlist" className={isActive("/wishlist")} onClick={() => setMenuOpen(false)}>Wishlist</Link></li>
+                  <li>
+                    <Link
+                      to="/virtual-try-on"
+                      className={`nav-tryon-link ${isActive("/virtual-try-on")}`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <HiSparkles />
+                      Try On
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>

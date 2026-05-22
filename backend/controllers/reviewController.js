@@ -16,7 +16,7 @@ exports.createReview = async (req, res) => {
     const hasOrdered = await Order.findOne({
       user: req.user.id,
       product: productId,
-      status: { $in: ["delivered", "confirmed", "shipped"] },
+      status: { $ne: "cancelled" },
     });
     if (!hasOrdered) {
       return res.status(403).json({

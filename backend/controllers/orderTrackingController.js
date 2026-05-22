@@ -157,23 +157,19 @@ exports.updateStage = async (req, res) => {
     await tracking.save();
 
     // ── Sync back to Order status ──
-    const formatStageToStatus = (stageName) => {
-      return stageName.toLowerCase().replace(" ", "-");
+    const stageToStatusMap = {
+      "Order Placed": "confirmed",
+      "Fabric Purchased": "fabric-purchased",
+      "Dyeing": "dyeing",
+      "Embroidery": "embroidery",
+      "Stitching": "stitching",
+      "Finishing": "finishing",
+      "Quality Check": "quality-check",
+      "Delivered": "delivered"
     };
-    
-    // Check if currentStage maps to a valid Order.status
-    const mappedStatus = formatStageToStatus(tracking.currentStage);
-    const validStatuses = [
-      "pending", "confirmed", "in-production", "fabric-purchased", 
-      "dyeing", "embroidery", "stitching", "finishing", 
-      "quality-check", "shipped", "delivered", "cancelled"
-    ];
-    
-    if (validStatuses.includes(mappedStatus)) {
-      await Order.findByIdAndUpdate(tracking.order, { status: mappedStatus });
-    } else if (tracking.currentStage !== "Order Placed") {
-      await Order.findByIdAndUpdate(tracking.order, { status: "in-production" });
-    }
+
+    const mappedStatus = stageToStatusMap[tracking.currentStage] || "in-production";
+    await Order.findByIdAndUpdate(tracking.order, { status: mappedStatus });
 
     // ── Inventory auto-consumption on Fabric Purchased completion ──
     if (stageName === "Fabric Purchased" && status === "completed") {

@@ -144,7 +144,6 @@ exports.sendQuote = async (req, res) => {
 // CONVERT design request to order (admin)
 exports.convertToOrder = async (req, res) => {
   try {
-    const { shippingAddress } = req.body;
     const request = await DesignRequest.findById(req.params.id).populate("user", "name email");
     if (!request) return res.status(404).json({ message: "Design request not found" });
 
@@ -155,6 +154,17 @@ exports.convertToOrder = async (req, res) => {
       return res.status(400).json({ message: "Please send a price quote first" });
     }
 
+    // Safely parse shippingAddress
+    let shippingAddress = { address: "TBD", city: "TBD", phone: "TBD" };
+    if (req.body && req.body.shippingAddress) {
+      const sa = req.body.shippingAddress;
+      shippingAddress = {
+        address: sa.address && sa.address.trim() ? sa.address.trim() : "TBD",
+        city: sa.city && sa.city.trim() ? sa.city.trim() : "TBD",
+        phone: sa.phone && sa.phone.trim() ? sa.phone.trim() : "TBD",
+      };
+    }
+
     // Create order from design request
     const order = await Order.create({
       user: request.user._id,
@@ -162,7 +172,7 @@ exports.convertToOrder = async (req, res) => {
       size: "",
       quantity: 1,
       totalPrice: request.quotedPrice,
-      shippingAddress: shippingAddress || { address: "TBD", city: "TBD", phone: "TBD" },
+      shippingAddress,
       notes: `Design Request: ${request.requestType}. ${request.description}`,
       status: "confirmed",
     });

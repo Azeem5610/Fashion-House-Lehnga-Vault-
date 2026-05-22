@@ -145,6 +145,17 @@ const AdminMachinery = () => {
     } catch { toast.error("Failed"); }
   };
 
+  const toggleOperational = async (m) => {
+    try {
+      const updatedValue = !m.isOperational;
+      await API.put(`/machinery/${m._id}`, { isOperational: updatedValue });
+      toast.success(`Machine status set to ${updatedValue ? "Online" : "Offline"}`);
+      fetchMachines();
+    } catch {
+      toast.error("Failed to update machine status");
+    }
+  };
+
   const getTypeIcon = (type) => MACHINE_TYPES.find(t => t.value === type)?.icon || "⚙️";
   const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" }) : "—";
   const formatCurrency = (v) => `Rs.${(v || 0).toLocaleString()}`;
@@ -218,7 +229,11 @@ const AdminMachinery = () => {
                           <div className="mch-card-serial">{m.serialNumber}</div>
                         </div>
                       </div>
-                      <div className="mch-operational">
+                      <div 
+                        className="mch-operational toggleable" 
+                        onClick={() => toggleOperational(m)}
+                        title="Click to toggle status"
+                      >
                         <span className={`mch-operational-dot ${m.isOperational ? "active" : "inactive"}`} />
                         {m.isOperational ? "Online" : "Offline"}
                       </div>

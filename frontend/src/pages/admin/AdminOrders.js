@@ -51,15 +51,6 @@ const AdminOrders = () => {
     setLoading(false);
   };
 
-  const updateStatus = async (id, status) => {
-    try {
-      await API.put(`/orders/${id}/status`, { status });
-      toast.success(`Order marked as ${status}`);
-      fetchOrders();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to update");
-    }
-  };
 
   const formatDate = (d) => new Date(d).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" });
 
@@ -118,7 +109,6 @@ const AdminOrders = () => {
                 <th>City</th>
                 <th>Date</th>
                 <th>Status</th>
-                <th>Update Status</th>
               </tr>
             </thead>
             <tbody>
@@ -147,16 +137,7 @@ const AdminOrders = () => {
                     <td>{o.shippingAddress?.city || "—"}</td>
                     <td style={{ fontSize: '0.8rem' }}>{formatDate(o.createdAt)}</td>
                     <td><span style={getStatusStyle(o.status)}>{o.status}</span></td>
-                    <td>
-                      <select
-                        className="form-select"
-                        value={o.status}
-                        onChange={(e) => updateStatus(o._id, e.target.value)}
-                        style={{ width: '155px', padding: '6px 10px', fontSize: '0.78rem' }}
-                      >
-                        {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </td>
+
                   </tr>
                 ))
               )}

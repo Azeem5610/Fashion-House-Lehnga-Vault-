@@ -163,6 +163,18 @@
   font-weight: 600;
 }
 
+.mch-operational.toggleable {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  user-select: none;
+}
+
+.mch-operational.toggleable:hover {
+  background: var(--bg-secondary);
+}
+
 .mch-operational-dot {
   width: 8px;
   height: 8px;
