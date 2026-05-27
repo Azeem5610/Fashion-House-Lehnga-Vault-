@@ -94,7 +94,7 @@ const ProductDetailPage = () => {
     }
     setOrdering(true);
     try {
-      await API.post("/orders", {
+      const { data } = await API.post("/orders", {
         productId: product._id,
         size: selectedSize || "",
         quantity: 1,
@@ -106,7 +106,7 @@ const ProductDetailPage = () => {
       if (product.category === "customized") {
         setOrderPlacedSuccess(true);
       } else {
-        navigate("/my-orders");
+        navigate(`/checkout/${data._id}`);
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to place order");

@@ -1,6 +1,9 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const OrderTracking = require("../models/OrderTracking");
+const Payment = require("../models/Payment");
+const PaymentLog = require("../models/PaymentLog");
+const paymentService = require("../services/paymentService");
 const { createAndEmit } = require("./notificationController");
 
 // Status-to-stage mapping for auto-syncing tracking
@@ -17,10 +20,15 @@ const STATUS_TO_STAGE = {
 // CREATE order (customer) — supports both ready-made and customized
 exports.createOrder = async (req, res) => {
   try {
-    const { productId, size, quantity, shippingAddress, notes } = req.body;
+    const { productId, size, quantity, shippingAddress, notes, paymentMethod = "safepay" } = req.body;
 
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: "Product not found" });
+
+    // Validate paymentMethod
+    if (!["safepay", "cod"].includes(paymentMethod)) {
+      return res.status(400).json({ message: "Invalid payment method. Use 'safepay' or 'cod'." });
+    }
 
     const qty = quantity || 1;
     const totalPrice = product.price * qty;
@@ -33,6 +41,9 @@ exports.createOrder = async (req, res) => {
       totalPrice,
       shippingAddress,
       notes: notes || "",
+      paymentMethod,
+      // COD orders get cod_pending status; SafePay orders stay pending until payment
+      paymentStatus: paymentMethod === "cod" ? "cod_pending" : "pending",
     });
 
     const populated = await order.populate("product", "name images price");
@@ -40,16 +51,21 @@ exports.createOrder = async (req, res) => {
     // Send notification to admin(s)
     const io = req.app.get("io");
     if (io) {
-      // Broadcast to admin room
       io.to("role_superadmin").to("role_productionManager").emit("notification", {
         type: "order",
         title: "New Order Received",
-        message: `${req.user.name} placed an order for ${product.name} — Rs.${totalPrice.toLocaleString()}`,
+        message: `${req.user.name} placed an order for ${product.name} — Rs.${totalPrice.toLocaleString()} (${paymentMethod.toUpperCase()})`,
         createdAt: new Date(),
       });
     }
 
-    res.status(201).json(populated);
+    const responseObj = populated.toObject();
+
+    // Bug #25: Payment session is NOT auto-created here.
+    // For SafePay orders, the frontend should call POST /payments/create or navigate to CheckoutPage.
+    // For COD orders, no payment session is needed.
+
+    res.status(201).json(responseObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -60,6 +76,7 @@ exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id })
       .populate("product", "name images price category")
+      .populate("payment")
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -73,8 +90,30 @@ exports.getAllOrders = async (req, res) => {
     const orders = await Order.find()
       .populate("product", "name images price category")
       .populate("user", "name email phone")
+      .populate("payment")
       .sort({ createdAt: -1 });
     res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// GET single order by ID
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("product", "name images price category sizes")
+      .populate("user", "name email phone")
+      .populate("payment");
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Verify ownership
+    const adminRoles = ["superadmin", "inventoryManager", "productionManager", "tailor"];
+    if (order.user._id.toString() !== req.user.id.toString() && !adminRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -90,7 +129,33 @@ exports.updateOrderStatus = async (req, res) => {
 
     const previousStatus = order.status;
     const newStatus = req.body.status;
-    order.status = newStatus;
+    const newPaymentStatus = req.body.paymentStatus;
+
+    if (newPaymentStatus) {
+      order.paymentStatus = newPaymentStatus;
+
+      // Sync Payment document if exists
+      if (newPaymentStatus === "completed") {
+        await Payment.updateOne(
+          { order: order._id },
+          { $set: { status: "completed", completedAt: new Date(), transactionId: `admin_manual_${Date.now()}` } }
+        );
+      } else {
+        await Payment.updateOne(
+          { order: order._id },
+          { $set: { status: newPaymentStatus } }
+        );
+      }
+    }
+
+    if (newStatus) {
+      // Validate payment before status updates to confirmed (allows COD pending)
+      if (newStatus === "confirmed" && order.paymentStatus !== "completed" && order.paymentStatus !== "cod_pending") {
+        return res.status(400).json({ message: "Cannot confirm order without completed payment or Cash on Delivery pending" });
+      }
+      order.status = newStatus;
+    }
+
     await order.save();
 
     const io = req.app.get("io");
@@ -185,7 +250,18 @@ exports.cancelMyOrder = async (req, res) => {
     }
 
     order.status = "cancelled";
+
+    // Bug #8: Also expire associated payment and update paymentStatus
+    if (order.paymentStatus === "pending" || order.paymentStatus === "cod_pending") {
+      order.paymentStatus = "expired";
+    }
     await order.save();
+
+    // Expire any pending Payment records for this order
+    await Payment.updateMany(
+      { order: order._id, status: "pending" },
+      { status: "expired" }
+    );
 
     const populated = await order.populate("product", "name images price");
     res.json(populated);

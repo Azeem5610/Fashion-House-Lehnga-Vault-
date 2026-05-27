@@ -69,6 +69,7 @@ const NAV_SECTIONS = [
     links: [
       { path: "/admin/cost-estimation", label: "Cost Estimation", icon: <HiCurrencyDollar />, roles: ["superadmin"] },
       { path: "/admin/rentals", label: "Shop Rentals", icon: <HiOfficeBuilding />, roles: ["superadmin"] },
+      { path: "/admin/payments", label: "Payments History", icon: <HiCurrencyDollar />, roles: ["superadmin"] },
     ],
   },
 ];

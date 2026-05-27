@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
 });
 
 // Track if we're already refreshing to avoid infinite loops
@@ -57,7 +57,7 @@ API.interceptors.response.use(
 
       try {
         const { data } = await axios.post(
-          "http://localhost:5000/api/auth/refresh-token",
+          `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/auth/refresh-token`,
           {},
           { withCredentials: true }
         );

@@ -15,6 +15,21 @@ const MyOrdersPage = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Bug #11: Re-fetch data whenever user switches back to the browser tab or focuses the window
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchData();
+      }
+    };
+
+    window.addEventListener("focus", fetchData);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", fetchData);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const fetchData = async () => {
@@ -97,7 +112,7 @@ const MyOrdersPage = () => {
                 <div key={order._id} className="order-card">
                   <div className="order-card-image">
                     {order.product?.images?.[0] ? (
-                      <img src={order.product.images[0].url} alt={order.product.name} />
+                       <img src={order.product.images[0].url} alt={order.product.name} />
                     ) : (
                       <div className="product-card-placeholder" style={{ height: '100%' }}>
                         <GiDress />
@@ -112,23 +127,59 @@ const MyOrdersPage = () => {
                     </div>
                     <div className="order-meta">
                       <span>📍 {order.shippingAddress?.city}</span>
+                      <span>
+                        💳 Payment ({order.paymentMethod === "cod" ? "COD" : "SafePay"}):{" "}
+                        <strong
+                          style={{
+                            textTransform: "capitalize",
+                            color:
+                              order.paymentStatus === "completed"
+                                ? "var(--success)"
+                                : "var(--warning)",
+                          }}
+                        >
+                          {order.paymentStatus === "cod_pending"
+                            ? "Cash on Delivery"
+                            : order.paymentStatus || "pending"}
+                        </strong>
+                      </span>
                     </div>
                   </div>
                     <div className="order-card-right">
                       <span className={getStatusClass(order.status)}>{order.status}</span>
                       <div className="order-price">Rs. {order.totalPrice?.toLocaleString()}</div>
-                      <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6, alignItems: "stretch" }}>
                         <Link
                           to={`/track-order/${order._id}`}
                           className="btn btn-sm btn-outline"
-                          style={{ fontSize: '0.72rem', gap: 4 }}
+                          style={{ fontSize: '0.72rem', gap: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                         >
                           <HiTruck /> Track
                         </Link>
+                        {order.paymentMethod !== "cod" &&
+                          (!order.paymentStatus ||
+                            order.paymentStatus === "pending" ||
+                            order.paymentStatus === "failed" ||
+                            order.paymentStatus === "expired") &&
+                          order.status !== "cancelled" && (
+                            <Link
+                              to={`/checkout/${order._id}`}
+                              className="btn btn-sm btn-gold"
+                              style={{
+                                fontSize: "0.72rem",
+                                gap: 4,
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              Pay Now
+                            </Link>
+                          )}
                         {(order.status === "pending" || order.status === "confirmed") && (
                           <button
                             className="btn btn-sm btn-danger"
-                            style={{ fontSize: '0.72rem', gap: 4, display: 'flex', alignItems: 'center' }}
+                            style={{ fontSize: '0.72rem', gap: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                             onClick={() => cancelOrder(order._id)}
                           >
                             <HiX /> Cancel

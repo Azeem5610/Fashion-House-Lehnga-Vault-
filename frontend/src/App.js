@@ -41,6 +41,7 @@ const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 // Finance & Operations modules
 const AdminCostEstimation = lazy(() => import("./pages/admin/AdminCostEstimation"));
 const AdminRentals = lazy(() => import("./pages/admin/AdminRentals"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 
 // Customer Pages — lazy load
 const AppointmentPage = lazy(() => import("./pages/AppointmentPage"));
@@ -49,6 +50,8 @@ const MoodboardPage = lazy(() => import("./pages/MoodboardPage"));
 const OrderTrackingPage = lazy(() => import("./pages/OrderTrackingPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const VirtualTryOnPage = lazy(() => import("./pages/VirtualTryOnPage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 
 // Admin role list
 const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
@@ -123,6 +126,14 @@ function AppContent() {
             <ProtectedRoute><OrderTrackingPage /></ProtectedRoute>
           } />
 
+          {/* Customer — Payments */}
+          <Route path="/checkout/:orderId" element={
+            <ProtectedRoute><CheckoutPage /></ProtectedRoute>
+          } />
+          <Route path="/payment-status/:orderId" element={
+            <ProtectedRoute><PaymentStatus /></ProtectedRoute>
+          } />
+
           {/* Admin Routes — role-based access */}
           <Route path="/admin" element={
             <ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>
@@ -149,6 +160,7 @@ function AppContent() {
             {/* Finance & Operations */}
             <Route path="cost-estimation" element={<AdminCostEstimation />} />
             <Route path="rentals" element={<AdminRentals />} />
+            <Route path="payments" element={<AdminPayments />} />
           </Route>
 
           {/* Catch all */}

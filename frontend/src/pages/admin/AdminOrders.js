@@ -51,6 +51,25 @@ const AdminOrders = () => {
     setLoading(false);
   };
 
+  const handleUpdateOrderStatus = async (orderId, status) => {
+    try {
+      await API.put(`/orders/${orderId}/status`, { status });
+      toast.success("Order status updated! 🚚");
+      fetchOrders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update order status");
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (orderId, paymentStatus) => {
+    try {
+      await API.put(`/orders/${orderId}/status`, { paymentStatus });
+      toast.success("Payment status updated successfully! 💳");
+      fetchOrders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update payment status");
+    }
+  };
 
   const formatDate = (d) => new Date(d).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" });
 
@@ -108,6 +127,7 @@ const AdminOrders = () => {
                 <th>Price</th>
                 <th>City</th>
                 <th>Date</th>
+                <th>Payment Status</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -136,7 +156,48 @@ const AdminOrders = () => {
                     <td style={{ color: 'var(--rose)', fontWeight: 600 }}>Rs. {o.totalPrice?.toLocaleString()}</td>
                     <td>{o.shippingAddress?.city || "—"}</td>
                     <td style={{ fontSize: '0.8rem' }}>{formatDate(o.createdAt)}</td>
-                    <td><span style={getStatusStyle(o.status)}>{o.status}</span></td>
+                    <td>
+                      <select
+                        value={o.paymentStatus || "pending"}
+                        onChange={(e) => handleUpdatePaymentStatus(o._id, e.target.value)}
+                        className="form-select"
+                        style={{
+                          fontSize: "0.8rem",
+                          padding: "4px 8px",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          width: "auto",
+                          color: o.paymentStatus === "completed" ? "#2E7D32" : "#F57F17",
+                          borderColor: o.paymentStatus === "completed" ? "rgba(46,125,50,0.3)" : "rgba(245,127,23,0.3)",
+                          background: o.paymentStatus === "completed" ? "rgba(46,125,50,0.05)" : "rgba(245,127,23,0.05)"
+                        }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="cod_pending">COD Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                        <option value="expired">Expired</option>
+                        <option value="refunded">Refunded</option>
+                        <option value="verification-failed">Verification Failed</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        value={o.status}
+                        onChange={(e) => handleUpdateOrderStatus(o._id, e.target.value)}
+                        className="form-select"
+                        style={{
+                          fontSize: "0.8rem",
+                          padding: "4px 8px",
+                          borderRadius: 6,
+                          width: "auto",
+                          cursor: "pointer"
+                        }}
+                      >
+                        {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </td>
 
                   </tr>
                 ))

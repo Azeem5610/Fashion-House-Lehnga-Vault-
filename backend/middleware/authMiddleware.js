@@ -62,3 +62,13 @@ exports.adminOnly = (req, res, next) => {
     res.status(403).json({ message: "Admin access only" });
   }
 };
+
+// Bug #21: Finance-only access — restricts payment/refund routes to financial roles
+exports.financeOnly = (req, res, next) => {
+  const financeRoles = ["superadmin", "inventoryManager"];
+  if (req.user && financeRoles.includes(req.user.role)) {
+    next();
+  } else {
+    res.status(403).json({ message: "Finance access only. Tailors and production managers cannot access payment operations." });
+  }
+};

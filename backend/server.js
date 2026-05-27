@@ -1,12 +1,15 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const express = require("express");
 const http = require("http");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
+const { handleWebhook } = require("./controllers/paymentController");
+const rateLimit = require("express-rate-limit");
 const initSocket = require("./config/socket");
 
-dotenv.config();
 connectDB();
 
 const app = express();
@@ -16,8 +19,30 @@ const server = http.createServer(app);
 const io = initSocket(server);
 app.set("io", io);
 
+// ── Webhook route MUST be mounted BEFORE express.json() ──
+// SafePay webhook signature verification needs the raw request body.
+const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  message: { message: "Too many webhook requests" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.post(
+  "/api/payments/webhook",
+  webhookLimiter,
+  express.raw({ type: "application/json" }),
+  handleWebhook
+);
+
 // Middleware
-app.use(express.json({ limit: "15mb" }));
+app.use(express.json({
+  limit: "15mb",
+  // Preserve raw body for any other routes that may need it
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  },
+}));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
 app.use(cors({
@@ -51,6 +76,18 @@ app.use("/api/rentals", require("./routes/rentalRoutes"));
 
 // Virtual Try-On module
 app.use("/api/virtual-tryon", require("./routes/virtualTryOnRoutes"));
+
+// SafePay Payment Integration Routes
+app.use("/api/payments", require("./routes/paymentRoutes"));
+
+// Start Background Jobs
+const startPaymentRecoveryJob = require("./jobs/paymentRecoveryJob");
+const startPaymentExpirationJob = require("./jobs/paymentExpirationJob");
+const startOrderCancellationJob = require("./jobs/orderCancellationJob");
+
+startPaymentRecoveryJob();
+startPaymentExpirationJob();
+startOrderCancellationJob();
 
 // Global error handling middleware
 app.use((err, req, res, next) => {

@@ -22,9 +22,9 @@ exports.getDashboardStats = async (req, res) => {
       VirtualTryOn.countDocuments(),
     ]);
 
-    // Revenue calculation
+    // Revenue calculation — only count paid orders (Bug #2)
     const revenueResult = await Order.aggregate([
-      { $match: { status: { $ne: "cancelled" } } },
+      { $match: { status: { $ne: "cancelled" }, paymentStatus: "completed" } },
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]);
     const totalRevenue = revenueResult[0]?.total || 0;
@@ -69,6 +69,7 @@ exports.getMonthlyRevenue = async (req, res) => {
             $lt: new Date(`${year + 1}-01-01`),
           },
           status: { $ne: "cancelled" },
+          paymentStatus: "completed", // Bug #3: Only count paid orders
         },
       },
       {
