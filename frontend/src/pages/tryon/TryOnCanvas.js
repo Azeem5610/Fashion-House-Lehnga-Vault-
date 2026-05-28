@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { fabric } from "fabric";
 
 // Mannequin placeholder — inline SVG encoded as data URL

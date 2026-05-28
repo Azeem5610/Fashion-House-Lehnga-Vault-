@@ -9,7 +9,7 @@ import {
   HiCalendar,
   HiTruck,
 } from "react-icons/hi";
-import { GiDress, GiSewingMachine, GiThread, GiGemChain } from "react-icons/gi";
+import { GiDress, GiSewingMachine } from "react-icons/gi";
 import { toast } from "react-toastify";
 import { useNotifications } from "../context/NotificationContext";
 import "./OrderTrackingPage.css";
@@ -34,7 +34,7 @@ const OrderTrackingPage = () => {
 
   useEffect(() => {
     fetchTracking();
-  }, [orderId]);
+  }, [orderId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Listen for real-time stage updates via socket
   useEffect(() => {
@@ -51,7 +51,7 @@ const OrderTrackingPage = () => {
     return () => {
       socket.off("notification", handleNotification);
     };
-  }, [socket, orderId]);
+  }, [socket, orderId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchTracking = async () => {
     setLoading(true);

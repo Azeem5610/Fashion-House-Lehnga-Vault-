@@ -147,7 +147,7 @@ const VirtualTryOnPage = () => {
   const [sessionsLoading, setSessionsLoading] = useState(true);
 
   // Canvas ready flag
-  const [canvasReady, setCanvasReady]     = useState(false);
+  const [canvasReady, setCanvasReady]     = useState(false); // eslint-disable-line no-unused-vars
 
   // ── Load past sessions on mount ──
   useEffect(() => {

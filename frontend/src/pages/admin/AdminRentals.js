@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import API from "../../utils/api";
 import {
-  HiPlus, HiX, HiTrash, HiPencil, HiSearch,
-  HiCurrencyDollar, HiOfficeBuilding, HiCalendar, HiCheckCircle, HiExclamation,
+  HiPlus, HiX, HiTrash, HiPencil,
+  HiOfficeBuilding, HiCalendar,
 } from "react-icons/hi";
 import { toast } from "react-toastify";
 import {

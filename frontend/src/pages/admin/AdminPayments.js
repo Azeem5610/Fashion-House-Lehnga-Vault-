@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API from "../../utils/api";
 import { toast } from "react-toastify";
-import { HiSearch, HiRefresh, HiDownload, HiCalendar, HiFilter, HiX, HiCurrencyDollar, HiCheckCircle, HiReceiptTax } from "react-icons/hi";
+import { HiSearch, HiRefresh, HiDownload, HiCalendar, HiX, HiCurrencyDollar, HiCheckCircle, HiReceiptTax } from "react-icons/hi";
 import { GiDress } from "react-icons/gi";
 import "./AdminPayments.css";
 
@@ -37,7 +37,7 @@ const AdminPayments = () => {
 
   useEffect(() => {
     fetchPayments();
-  }, [status, dateFrom, dateTo, page]);
+  }, [status, dateFrom, dateTo, page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchPayments = async () => {
     setLoading(true);

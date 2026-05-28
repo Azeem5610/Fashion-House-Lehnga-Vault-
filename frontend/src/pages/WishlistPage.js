@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import API from "../utils/api";
-import { HiHeart, HiX, HiTrash, HiSwitchHorizontal } from "react-icons/hi";
+import { HiHeart, HiX, HiSwitchHorizontal } from "react-icons/hi";
 import { toast } from "react-toastify";
 import "./WishlistPage.css";
 

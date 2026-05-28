@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API from "../../utils/api";
 import { GiDress } from "react-icons/gi";
-import { HiFilter, HiSearch, HiPlus, HiX } from "react-icons/hi";
+import { HiSearch } from "react-icons/hi";
 import { toast } from "react-toastify";
 
 const STATUSES = [
@@ -73,7 +73,7 @@ const AdminOrders = () => {
 
   const formatDate = (d) => new Date(d).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" });
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = (status) => { // eslint-disable-line no-unused-vars
     const s = STATUS_COLORS[status] || { bg: "rgba(160,119,106,0.08)", color: "#A0776A", border: "rgba(160,119,106,0.15)" };
     return { background: s.bg, color: s.color, border: `1px solid ${s.border}`, padding: "4px 12px", borderRadius: "50px", fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" };
   };

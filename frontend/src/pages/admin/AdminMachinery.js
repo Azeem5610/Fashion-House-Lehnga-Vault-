@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import API from "../../utils/api";
-import { HiPlus, HiX, HiTrash, HiPencil, HiSearch, HiCog, HiClock, HiCurrencyDollar, HiExclamation } from "react-icons/hi";
+import { HiPlus, HiX, HiTrash, HiPencil, HiSearch, HiCog, HiClock, HiCurrencyDollar } from "react-icons/hi";
 import { toast } from "react-toastify";
 import "./AdminMachinery.css";
 

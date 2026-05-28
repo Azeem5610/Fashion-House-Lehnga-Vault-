@@ -90,7 +90,7 @@ const TryOnSidebar = ({
     }
     setPlacingOrder(true);
     try {
-      const res = await API.post(`/virtual-tryon/${sessionId}/order`, {
+      await API.post(`/virtual-tryon/${sessionId}/order`, {
         size: orderForm.size,
         quantity: orderForm.quantity,
         shippingAddress: {

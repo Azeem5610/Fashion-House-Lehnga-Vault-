@@ -5,7 +5,6 @@ import {
   HiClock,
   HiTruck,
   HiExclamationCircle,
-  HiRefresh,
   HiPlus,
   HiX,
   HiTrash,

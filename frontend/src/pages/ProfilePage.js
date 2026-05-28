@@ -60,9 +60,6 @@ const ProfilePage = () => {
   };
 
   const userInitial = user?.name?.charAt(0).toUpperCase() || "?";
-  const memberSince = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString("en-PK", { year: "numeric", month: "long" })
-    : "—";
 
   return (
     <div className="profile-page">

@@ -8,7 +8,9 @@ const NotificationContext = createContext();
 
 export const useNotifications = () => useContext(NotificationContext);
 
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace("/api", "")
+  : "http://localhost:5000";
 
 const NOTIFICATION_ICONS = {
   order: "🛒",
@@ -85,7 +87,7 @@ export const NotificationProvider = ({ children }) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [user?.token]);
+  }, [user?.token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchNotifications = useCallback(async (page = 1) => {
     if (!user?.token) return;

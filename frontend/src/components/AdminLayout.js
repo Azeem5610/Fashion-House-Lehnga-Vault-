@@ -16,7 +16,6 @@ import {
   HiUsers,
   HiCalendar,
   HiStar,
-  HiBell,
   HiTruck,
   HiCurrencyDollar,
   HiOfficeBuilding,

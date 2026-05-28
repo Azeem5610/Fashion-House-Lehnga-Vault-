@@ -111,9 +111,7 @@ const MoodboardPage = () => {
     } catch { toast.error("Failed"); }
   };
 
-  const formatDate = (d) => new Date(d).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" });
-
-  // ── Board List View ──
+  const formatDate = (d) => new Date(d).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" }); // eslint-disable-line no-unused-vars
   if (!selectedBoard) {
     return (
       <div className="moodboard-page">

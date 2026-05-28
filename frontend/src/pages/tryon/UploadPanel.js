@@ -90,7 +90,7 @@ const UploadPanel = ({ mode, onModeChange, uploadedImage, onImageUploaded, onIma
           {/* Uploaded preview */}
           {uploadedImage?.url ? (
             <div className="tryon-uploaded-preview">
-              <img src={uploadedImage.url} alt="Your photo" />
+              <img src={uploadedImage.url} alt="Uploaded preview" />
               <button
                 id="tryon-remove-photo"
                 className="tryon-remove-photo"

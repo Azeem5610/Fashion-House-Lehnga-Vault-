@@ -6,9 +6,6 @@ import {
   HiX,
   HiTrash,
   HiReply,
-  HiPhotograph,
-  HiFilter,
-  HiEye,
 } from "react-icons/hi";
 import { toast } from "react-toastify";
 import "./AdminReviews.css";

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../utils/api";
 import { useAuth } from "../context/AuthContext";
-import { HiStar, HiX, HiPhotograph, HiTrash } from "react-icons/hi";
+import { HiStar, HiX, HiPhotograph } from "react-icons/hi";
 import { toast } from "react-toastify";
 import "./ReviewForm.css";
 
@@ -21,7 +21,7 @@ const ReviewForm = ({ productId, onReviewSubmitted }) => {
 
   useEffect(() => {
     fetchReviews();
-  }, [productId]);
+  }, [productId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchReviews = async () => {
     setLoading(true);
