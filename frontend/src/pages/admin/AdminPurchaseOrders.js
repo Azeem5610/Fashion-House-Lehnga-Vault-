@@ -19,7 +19,7 @@ const AdminPurchaseOrders = () => {
   const [whatsappLink, setWhatsappLink] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async () => {
     setLoading(true);

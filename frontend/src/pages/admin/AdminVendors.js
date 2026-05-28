@@ -25,7 +25,7 @@ const AdminVendors = () => {
   const [viewVendor, setViewVendor] = useState(null);
   const [vendorOrders, setVendorOrders] = useState([]);
 
-  useEffect(() => { fetchVendors(); }, []);
+  useEffect(() => { fetchVendors(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchVendors = async () => {
     setLoading(true);
