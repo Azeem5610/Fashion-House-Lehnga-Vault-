@@ -45,11 +45,29 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
+// Configure CORS to dynamically allow localhost, any Vercel deployment, and CLIENT_URL
+const allowedOrigins = ["http://localhost:3000"];
+if (process.env.CLIENT_URL) {
+  // Support comma-separated origins in CLIENT_URL
+  process.env.CLIENT_URL.split(",").forEach(url => allowedOrigins.push(url.trim()));
+}
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.some(allowed => origin === allowed || origin.replace(/\/$/, "") === allowed.replace(/\/$/, ""));
+    const isVercel = /\.vercel\.app$/.test(origin);
+    const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(origin);
+
+    if (isAllowed || isVercel || isLocalhost) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 // Routes

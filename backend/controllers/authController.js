@@ -47,11 +47,10 @@ exports.register = async (req, res) => {
     await user.save();
 
     // Set refresh token as httpOnly cookie
-    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
@@ -103,11 +102,10 @@ exports.login = async (req, res) => {
     await user.save();
 
     // Set refresh token as httpOnly cookie
-    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
