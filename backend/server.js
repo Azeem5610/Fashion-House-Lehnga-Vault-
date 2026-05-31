@@ -20,7 +20,7 @@ const io = initSocket(server);
 app.set("io", io);
 
 // ── Webhook route MUST be mounted BEFORE express.json() ──
-// SafePay webhook signature verification needs the raw request body.
+// SafePay webhook signature verification needs the raw request body
 const webhookLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100,
