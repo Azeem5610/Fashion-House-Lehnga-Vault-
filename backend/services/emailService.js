@@ -25,7 +25,6 @@ const sendEmail = async (options) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      family: 4, // Force IPv4 resolution to prevent IPv6 ENETUNREACH errors on cloud hosts like Render
     });
 
     const mailOptions = {
@@ -36,12 +35,7 @@ const sendEmail = async (options) => {
       html: options.html,
     };
 
-    try {
-      await transporter.sendMail(mailOptions);
-    } catch (err) {
-      console.error("❌ nodemailer sendMail Error:", err);
-      throw err;
-    }
+    await transporter.sendMail(mailOptions);
   } else {
     // ── FALLBACK FOR LOCAL DEV / NO SMTP CONFIG ──
     console.log("\n====================================================================");
