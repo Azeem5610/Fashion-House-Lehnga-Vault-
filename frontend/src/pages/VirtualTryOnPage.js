@@ -1,413 +1,388 @@
-import React, {
-  useState, useRef, useCallback, useEffect, useMemo,
-} from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { HiSparkles, HiX, HiSearch, HiFilter, HiRefresh } from "react-icons/hi";
-
-import UploadPanel        from "./tryon/UploadPanel";
-import TryOnCanvas        from "./tryon/TryOnCanvas";
-import AdjustmentControls from "./tryon/AdjustmentControls";
-import TryOnSidebar       from "./tryon/TryOnSidebar";
-import API                from "../utils/api";
+import {
+  HiSparkles, HiArrowRight, HiArrowLeft, HiRefresh,
+  HiHeart, HiShoppingCart, HiCheck, HiStar,
+} from "react-icons/hi";
+import API from "../utils/api";
 import "./VirtualTryOnPage.css";
 
-// Default slider values
-const DEFAULT_TRANSFORMS = {
-  opacity:       100,
-  bodyHeight:    100,
-  bodyWidth:     100,
-  shoulderWidth: 100,
-  rotation:      0,
-  skinToneFilter: "none",
+/* ─── Quiz Configuration ─────────────────────────────────────── */
+const STEPS = [
+  {
+    id: "occasion",
+    question: "What's the occasion?",
+    subtitle: "Tell us what you're dressing for",
+    icon: "🎊",
+    options: [
+      { label: "Bridal (Mehndi)",   value: "mehndi",   emoji: "💛", color: "#F59E0B" },
+      { label: "Bridal (Barat)",    value: "barat",    emoji: "❤️", color: "#E11D48" },
+      { label: "Bridal (Walima)",   value: "walima",   emoji: "💜", color: "#7C3AED" },
+      { label: "Wedding Guest",     value: "guest",    emoji: "💐", color: "#059669" },
+      { label: "Eid / Festive",     value: "festive",  emoji: "🌙", color: "#0EA5E9" },
+      { label: "Party / Reception", value: "party",    emoji: "✨", color: "#D946EF" },
+    ],
+  },
+  {
+    id: "color",
+    question: "Pick your colour palette",
+    subtitle: "Which shades speak to you?",
+    icon: "🎨",
+    options: [
+      { label: "Red & Crimson",    value: "red",    emoji: "🔴", color: "#DC2626" },
+      { label: "Pink & Rose",      value: "pink",   emoji: "🌸", color: "#EC4899" },
+      { label: "Gold & Beige",     value: "gold",   emoji: "✨", color: "#D97706" },
+      { label: "Green & Teal",     value: "green",  emoji: "💚", color: "#059669" },
+      { label: "Blue & Navy",      value: "blue",   emoji: "💙", color: "#2563EB" },
+      { label: "Purple & Plum",    value: "purple", emoji: "💜", color: "#7C3AED" },
+    ],
+  },
+  {
+    id: "budget",
+    question: "What's your budget range?",
+    subtitle: "We'll show you the best picks in your range",
+    icon: "💰",
+    options: [
+      { label: "Under Rs. 15,000",         value: [0, 15000],       emoji: "💸", color: "#6B7280" },
+      { label: "Rs. 15,000 – 30,000",      value: [15000, 30000],   emoji: "💳", color: "#0EA5E9" },
+      { label: "Rs. 30,000 – 60,000",      value: [30000, 60000],   emoji: "💎", color: "#7C3AED" },
+      { label: "Rs. 60,000 – 1,00,000",    value: [60000, 100000],  emoji: "👑", color: "#D97706" },
+      { label: "Above Rs. 1,00,000",       value: [100000, 9999999],emoji: "🌟", color: "#E11D48" },
+    ],
+  },
+  {
+    id: "fabric",
+    question: "Preferred fabric type?",
+    subtitle: "Each fabric has its own elegance",
+    icon: "🧵",
+    options: [
+      { label: "Net (China)",         value: "Net (China)",          emoji: "🕸️", color: "#6B7280" },
+      { label: "Pure China Krinkle",  value: "Pure China Krinkle",   emoji: "🌊", color: "#0EA5E9" },
+      { label: "Organza",             value: "Organza",              emoji: "🪷", color: "#EC4899" },
+      { label: "Velvet (Winter)",     value: "Velvet (Winter)",      emoji: "🟣", color: "#7C3AED" },
+      { label: "Tussle Silk",         value: "Tussle Silk",          emoji: "🌸", color: "#D946EF" },
+      { label: "Any / Surprise me",   value: "any",                  emoji: "🎲", color: "#D97706" },
+    ],
+  },
+];
+
+/* ─── Utility ─────────────────────────────────────────────────── */
+const scoreProduct = (product, answers) => {
+  let score = 0;
+
+  // Budget match
+  const [minB, maxB] = answers.budget || [0, 9999999];
+  if (product.price >= minB && product.price <= maxB) score += 40;
+  else if (product.price < minB) score += 10;  // cheaper than budget
+
+  // Fabric match
+  if (answers.fabric && answers.fabric !== "any") {
+    if (product.fabricType === answers.fabric) score += 35;
+  } else {
+    score += 25; // "any" gets partial credit
+  }
+
+  // Boost if product has images (more presentable)
+  if (product.images?.length > 0) score += 10;
+
+  // Popularity boost via random seed per product (stable pseudo-score)
+  const seed = (product._id?.charCodeAt(0) || 0) % 15;
+  score += seed;
+
+  return score;
 };
 
-// ── Product Picker Modal ────────────────────────────────────────────
-const ProductPicker = ({ onSelect, onClose }) => {
-  const [products, setProducts]   = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [search, setSearch]       = useState("");
-  const [fabricFilter, setFabric] = useState("");
+/* ─── Components ─────────────────────────────────────────────── */
 
-  const FABRICS = [
-    "Net (China)", "Pure China Krinkle", "Tussle Silk",
-    "Organza", "Barosha", "Velvet (Winter)", "Shafon Krinkle",
-  ];
+const StepIndicator = ({ current, total }) => (
+  <div className="sf-steps">
+    {Array.from({ length: total }).map((_, i) => (
+      <div
+        key={i}
+        className={`sf-step-dot ${i < current ? "done" : i === current ? "active" : ""}`}
+      />
+    ))}
+  </div>
+);
 
-  useEffect(() => {
-    API.get("/products")
-      .then((r) => setProducts(r.data.products || r.data || []))
-      .catch(() => toast.error("Could not load products"))
-      .finally(() => setLoading(false));
-  }, []);
+const QuizStep = ({ step, selected, onSelect, onNext, onBack, isFirst, isLast }) => (
+  <div className="sf-quiz-slide" id={`sf-step-${step.id}`}>
+    <div className="sf-quiz-icon">{step.icon}</div>
+    <h2 className="sf-quiz-q">{step.question}</h2>
+    <p className="sf-quiz-sub">{step.subtitle}</p>
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const matchSearch  = !search  || p.name.toLowerCase().includes(search.toLowerCase());
-      const matchFabric  = !fabricFilter || p.fabricType === fabricFilter;
-      return matchSearch && matchFabric;
-    });
-  }, [products, search, fabricFilter]);
+    <div className="sf-options">
+      {step.options.map((opt) => {
+        const isSelected = JSON.stringify(selected) === JSON.stringify(opt.value);
+        return (
+          <button
+            key={opt.label}
+            id={`sf-opt-${step.id}-${opt.value}`}
+            className={`sf-option ${isSelected ? "selected" : ""}`}
+            style={{ "--opt-color": opt.color }}
+            onClick={() => onSelect(opt.value)}
+          >
+            <span className="sf-opt-emoji">{opt.emoji}</span>
+            <span className="sf-opt-label">{opt.label}</span>
+            {isSelected && <HiCheck className="sf-opt-check" />}
+          </button>
+        );
+      })}
+    </div>
+
+    <div className="sf-quiz-nav">
+      {!isFirst && (
+        <button id="sf-back-btn" className="sf-nav-btn sf-back" onClick={onBack}>
+          <HiArrowLeft /> Back
+        </button>
+      )}
+      <button
+        id="sf-next-btn"
+        className="sf-nav-btn sf-next"
+        onClick={onNext}
+        disabled={selected === undefined || selected === null}
+      >
+        {isLast ? "Find My Style ✨" : "Next"} <HiArrowRight />
+      </button>
+    </div>
+  </div>
+);
+
+const ProductCard = ({ product, rank }) => {
+  const navigate = useNavigate();
+  const [liked, setLiked] = useState(false);
+  const img = product.images?.[0]?.url;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content tryon-picker-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Choose a Lehnga Design</h2>
-          <button className="modal-close" onClick={onClose}><HiX /></button>
+    <div className="sf-product-card" id={`sf-product-${product._id}`}>
+      {rank <= 3 && (
+        <div className="sf-rank-badge">
+          {rank === 1 ? "🏆 Best Match" : rank === 2 ? "🥈 2nd Pick" : "🥉 3rd Pick"}
         </div>
-
-        {/* Filters */}
-        <div className="tryon-picker-filters">
-          <div className="input-wrapper" style={{ flex: 1 }}>
-            <HiSearch className="input-icon" />
-            <input
-              id="tryon-picker-search"
-              className="form-input"
-              placeholder="Search designs…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="input-wrapper">
-            <HiFilter className="input-icon" />
-            <select
-              id="tryon-picker-fabric"
-              className="form-select"
-              style={{ paddingLeft: 38, minWidth: 160 }}
-              value={fabricFilter}
-              onChange={(e) => setFabric(e.target.value)}
-            >
-              <option value="">All Fabrics</option>
-              {FABRICS.map((f) => <option key={f} value={f}>{f}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="tryon-picker-grid">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="skeleton" style={{ height: 200, borderRadius: 10 }} />
+      )}
+      <div className="sf-product-img">
+        {img
+          ? <img src={img} alt={product.name} />
+          : <div className="sf-product-placeholder">👗</div>}
+        <button
+          className={`sf-like-btn ${liked ? "liked" : ""}`}
+          onClick={() => { setLiked(!liked); if (!liked) toast.success("Added to wishlist ❤️"); }}
+          title="Add to wishlist"
+        >
+          <HiHeart />
+        </button>
+      </div>
+      <div className="sf-product-body">
+        <div className="sf-product-name">{product.name}</div>
+        <div className="sf-product-fabric">{product.fabricType}</div>
+        <div className="sf-product-footer">
+          <div className="sf-product-price">Rs. {(product.price || 0).toLocaleString()}</div>
+          <div className="sf-product-stars">
+            {[1,2,3,4,5].map(s => (
+              <HiStar key={s} style={{ color: s <= 4 ? "#F59E0B" : "#D1D5DB", fontSize: 12 }} />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="tryon-picker-empty">
-            <span>👗</span>
-            <p>No designs found</p>
-          </div>
-        ) : (
-          <div className="tryon-picker-grid" id="tryon-picker-grid">
-            {filtered.map((p) => (
-              <div
-                key={p._id}
-                id={`tryon-pick-${p._id}`}
-                className="tryon-picker-card"
-                onClick={() => onSelect(p)}
-              >
-                {p.images?.[0]?.url ? (
-                  <img src={p.images[0].url} alt={p.name} />
-                ) : (
-                  <div className="tryon-picker-placeholder">👗</div>
-                )}
-                <div className="tryon-picker-info">
-                  <div className="tryon-picker-name">{p.name}</div>
-                  <div className="tryon-picker-fabric">{p.fabricType}</div>
-                  <div className="tryon-picker-price">Rs.{p.price?.toLocaleString()}</div>
-                </div>
-                <div className="tryon-picker-overlay">
-                  <span>Try On</span>
-                </div>
-              </div>
-            ))}
+        </div>
+        {product.sizes?.length > 0 && (
+          <div className="sf-product-sizes">
+            {product.sizes.map((s) => <span key={s} className="tryon-size-chip">{s}</span>)}
           </div>
         )}
+        <button
+          id={`sf-view-${product._id}`}
+          className="sf-view-btn"
+          onClick={() => navigate(`/product/${product._id}`)}
+        >
+          <HiShoppingCart /> View & Order
+        </button>
       </div>
     </div>
   );
 };
 
-// ── Main Page ───────────────────────────────────────────────────────
-const VirtualTryOnPage = () => {
-  const canvasRef = useRef(null);
+// ── Main Page ───────────────────────────────────────────────
+const StyleFinderPage = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers]         = useState({});
+  const [products, setProducts]       = useState([]);
+  const [loading, setLoading]         = useState(false);
+  const [phase, setPhase]             = useState("quiz"); // "quiz" | "loading" | "results"
 
-  // Core state
-  const [mode, setMode]                   = useState("mannequin"); // "photo" | "mannequin"
-  const [uploadedImage, setUploadedImage] = useState(null);        // { url, public_id }
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [transforms, setTransforms]       = useState({ ...DEFAULT_TRANSFORMS });
-  const [showPicker, setShowPicker]       = useState(false);
-
-  // Session state
-  const [sessionId, setSessionId]         = useState(null);
-  const [sessionFlags, setSessionFlags]   = useState({
-    addedToWishlist: false, addedToMoodboard: false, convertedToOrder: false,
-  });
-
-  // Past sessions
-  const [sessions, setSessions]           = useState([]);
-  const [sessionsLoading, setSessionsLoading] = useState(true);
-
-  // Canvas ready flag
-  const [canvasReady, setCanvasReady]     = useState(false); // eslint-disable-line no-unused-vars
-
-  // ── Load past sessions on mount ──
+  // Load products when entering results phase
   useEffect(() => {
-    API.get("/virtual-tryon")
-      .then((r) => setSessions(r.data.sessions || []))
-      .catch(() => {})
-      .finally(() => setSessionsLoading(false));
-  }, []);
-
-  // ── Auto-create session when mode / product / image changes ──
-  const ensureSession = useCallback(async (overrides = {}) => {
-    try {
-      if (sessionId) {
-        // Update existing session
-        await API.patch(`/virtual-tryon/${sessionId}`, {
-          mode,
-          uploadedImage: uploadedImage || { url: "", public_id: "" },
-          lehnga: selectedProduct?._id || null,
-          transformData: { ...transforms, ...overrides },
-        });
-      } else {
-        // Create new session
-        const res = await API.post("/virtual-tryon", {
-          mode,
-          uploadedImage: uploadedImage || { url: "", public_id: "" },
-          lehnga: selectedProduct?._id || null,
-          transformData: { ...transforms, ...overrides },
-          sessionName: selectedProduct
-            ? `${selectedProduct.name} Try-On`
-            : `Try-On ${new Date().toLocaleDateString("en-PK")}`,
-        });
-        setSessionId(res.data._id);
-        setSessions((prev) => [res.data, ...prev]);
-      }
-    } catch (_) { /* silent — session tracking non-blocking */ }
-  }, [sessionId, mode, uploadedImage, selectedProduct, transforms]);
-
-  // ── Handle mode change ──
-  const handleModeChange = useCallback((newMode) => {
-    setMode(newMode);
-  }, []);
-
-  // ── Handle image upload ──
-  const handleImageUploaded = useCallback((imgData) => {
-    setUploadedImage(imgData);
-    setMode("photo");
-  }, []);
-
-  const handleImageRemoved = useCallback(() => {
-    setUploadedImage(null);
-    setMode("mannequin");
-  }, []);
-
-  // ── Handle product selection ──
-  const handleProductSelect = useCallback(async (product) => {
-    setSelectedProduct(product);
-    setShowPicker(false);
-    toast.success(`"${product.name}" selected ✨`);
-    // Trigger session creation/update
-    setTimeout(() => ensureSession(), 300);
-  }, [ensureSession]);
-
-  // ── Handle transform changes (from sliders) ──
-  const handleTransformChange = useCallback((newTransforms) => {
-    setTransforms((prev) => ({ ...prev, ...newTransforms }));
-  }, []);
-
-  // ── Reset transforms ──
-  const handleReset = useCallback(() => {
-    setTransforms({ ...DEFAULT_TRANSFORMS });
-    canvasRef.current?.resetTransform();
-    toast.info("Adjustments reset");
-  }, []);
-
-  // ── Save final preview to Cloudinary ──
-  const handleSavePreview = useCallback(async () => {
-    if (!canvasRef.current) return;
-
-    await ensureSession();
-    if (!sessionId) { toast.warn("Session not ready"); return; }
-
-    const dataUrl = canvasRef.current.exportDataURL();
-    if (!dataUrl) { toast.error("Canvas export failed"); return; }
-
-    try {
-      await API.patch(`/virtual-tryon/${sessionId}/preview`, { dataUrl });
-      toast.success("Preview saved to your profile! 📸");
-      // Refresh sessions
-      const r = await API.get("/virtual-tryon");
-      setSessions(r.data.sessions || []);
-    } catch (e) {
-      toast.error(e.response?.data?.message || "Failed to save preview");
-    }
-  }, [sessionId, ensureSession]);
-
-  // ── Download canvas as PNG ──
-  const handleDownload = useCallback(() => {
-    const dataUrl = canvasRef.current?.exportDataURL();
-    if (!dataUrl) { toast.error("Canvas not ready"); return; }
-
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `tryon-${selectedProduct?.name || "preview"}-${Date.now()}.png`;
-    a.click();
-    toast.success("Downloaded!");
-  }, [selectedProduct]);
-
-  // ── Load a past session ──
-  const handleSessionClick = useCallback(async (session) => {
-    try {
-      const res = await API.get(`/virtual-tryon/${session._id}`);
-      const s   = res.data;
-      setSessionId(s._id);
-      setMode(s.mode || "mannequin");
-      setUploadedImage(s.uploadedImage?.url ? s.uploadedImage : null);
-      setSelectedProduct(s.lehnga || null);
-      setTransforms({
-        ...DEFAULT_TRANSFORMS,
-        ...(s.transformData || {}),
+    if (phase !== "loading") return;
+    setLoading(true);
+    API.get("/products")
+      .then((r) => {
+        const all = r.data.products || r.data || [];
+        setProducts(all);
+      })
+      .catch(() => toast.error("Could not load products"))
+      .finally(() => {
+        setLoading(false);
+        setPhase("results");
       });
-      setSessionFlags({
-        addedToWishlist:  s.addedToWishlist  || false,
-        addedToMoodboard: s.addedToMoodboard || false,
-        convertedToOrder: s.convertedToOrder || false,
-      });
-      toast.success("Session loaded");
-    } catch {
-      toast.error("Could not load session");
-    }
-  }, []);
+  }, [phase]);
 
-  // ── Delete a past session ──
-  const handleSessionDelete = useCallback(async (id) => {
-    if (!window.confirm("Delete this try-on session?")) return;
-    try {
-      await API.delete(`/virtual-tryon/${id}`);
-      setSessions((prev) => prev.filter((s) => s._id !== id));
-      if (sessionId === id) {
-        setSessionId(null);
-        setSelectedProduct(null);
-        setUploadedImage(null);
-        setTransforms({ ...DEFAULT_TRANSFORMS });
-        setMode("mannequin");
-        setSessionFlags({ addedToWishlist: false, addedToMoodboard: false, convertedToOrder: false });
-      }
-      toast.success("Session deleted");
-    } catch {
-      toast.error("Failed to delete session");
-    }
-  }, [sessionId]);
+  // Score & sort products
+  const recommended = useMemo(() => {
+    if (!products.length) return [];
+    return [...products]
+      .map((p) => ({ ...p, _score: scoreProduct(p, answers) }))
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 9);
+  }, [products, answers]);
 
-  // The lehnga image to show on canvas — use first product image
-  const lehngaImageUrl = selectedProduct?.images?.[0]?.url || null;
+  const handleSelect = (value) => {
+    setAnswers((prev) => ({ ...prev, [STEPS[currentStep].id]: value }));
+  };
+
+  const handleNext = () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep((s) => s + 1);
+    } else {
+      setPhase("loading");
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) setCurrentStep((s) => s - 1);
+  };
+
+  const handleRestart = () => {
+    setCurrentStep(0);
+    setAnswers({});
+    setProducts([]);
+    setPhase("quiz");
+  };
 
   return (
-    <div className="tryon-page" id="virtual-tryon-page">
+    <div className="sf-page" id="style-finder-page">
 
       {/* ── Page Header ── */}
-      <div className="tryon-page-header">
-        <div className="tryon-header-inner">
-          <div className="tryon-header-badge">
-            <HiSparkles /> Virtual Try-On
-          </div>
-          <h1 className="tryon-page-title">
-            Discover Your <span className="gradient-text">Dream Look</span>
+      <div className="sf-page-header">
+        <div className="sf-header-inner">
+          <div className="sf-header-badge"><HiSparkles /> Style Finder</div>
+          <h1 className="sf-page-title">
+            Find Your <span className="gradient-text">Perfect Lehnga</span>
           </h1>
-          <p className="tryon-page-subtitle">
-            Upload your photo, select a lehnga, and see how it looks — instantly
+          <p className="sf-page-subtitle">
+            Answer 4 quick questions — we'll match you with your dream design
           </p>
         </div>
-        <div className="tryon-header-orb tryon-orb-1" />
-        <div className="tryon-header-orb tryon-orb-2" />
+        <div className="sf-header-orb sf-orb-1" />
+        <div className="sf-header-orb sf-orb-2" />
       </div>
 
-      {/* ── Three-Column Layout ── */}
-      <div className="tryon-layout" id="tryon-layout">
-
-        {/* LEFT — Upload + Adjustments */}
-        <div className="tryon-left-panel" id="tryon-left-panel">
-          <UploadPanel
-            mode={mode}
-            onModeChange={handleModeChange}
-            uploadedImage={uploadedImage}
-            onImageUploaded={handleImageUploaded}
-            onImageRemoved={handleImageRemoved}
-          />
-          <AdjustmentControls
-            transforms={transforms}
-            onChange={handleTransformChange}
-            onReset={handleReset}
-          />
-        </div>
-
-        {/* CENTER — Canvas */}
-        <div className="tryon-center-panel" id="tryon-center-panel">
-          <div className="tryon-canvas-card">
-            <div className="tryon-canvas-toolbar">
-              <span className="tryon-toolbar-label">
-                {mode === "photo" && uploadedImage
-                  ? "📸 Your Photo"
-                  : "👗 Mannequin Preview"}
-              </span>
-              <div className="tryon-toolbar-actions">
-                <button
-                  id="tryon-toolbar-reset"
-                  className="tryon-toolbar-btn"
-                  onClick={handleReset}
-                  title="Reset adjustments"
-                >
-                  <HiRefresh />
-                </button>
-              </div>
-            </div>
-
-            <TryOnCanvas
-              ref={canvasRef}
-              mode={mode}
-              brideImageUrl={uploadedImage?.url}
-              lehngaImageUrl={lehngaImageUrl}
-              transforms={transforms}
-              onTransformChange={handleTransformChange}
-              canvasReady={() => setCanvasReady(true)}
+      {/* ── Quiz Phase ── */}
+      {phase === "quiz" && (
+        <div className="sf-quiz-wrap" id="sf-quiz-container">
+          <StepIndicator current={currentStep} total={STEPS.length} />
+          <div className="sf-quiz-card">
+            <QuizStep
+              step={STEPS[currentStep]}
+              selected={answers[STEPS[currentStep].id]}
+              onSelect={handleSelect}
+              onNext={handleNext}
+              onBack={handleBack}
+              isFirst={currentStep === 0}
+              isLast={currentStep === STEPS.length - 1}
             />
           </div>
-
-          {/* Instruction strip */}
-          <div className="tryon-instructions">
-            <span>🖱 Drag to move</span>
-            <span>⤢ Corner handles to resize</span>
-            <span>🔄 Top handle to rotate</span>
+          <div className="sf-quiz-progress-label">
+            Step {currentStep + 1} of {STEPS.length}
           </div>
         </div>
+      )}
 
-        {/* RIGHT — Sidebar */}
-        <div className="tryon-right-panel" id="tryon-right-panel">
-          <TryOnSidebar
-            selectedProduct={selectedProduct}
-            sessionId={sessionId}
-            sessionFlags={sessionFlags}
-            onSavePreview={handleSavePreview}
-            onDownload={handleDownload}
-            onSelectProduct={() => setShowPicker(true)}
-            onFlagUpdate={(flags) => setSessionFlags((prev) => ({ ...prev, ...flags }))}
-            sessions={sessions}
-            sessionsLoading={sessionsLoading}
-            onSessionClick={handleSessionClick}
-            onSessionDelete={handleSessionDelete}
-          />
+      {/* ── Loading Phase ── */}
+      {phase === "loading" && (
+        <div className="sf-loading-wrap" id="sf-loading">
+          <div className="sf-loading-orb" />
+          <div className="sf-loading-spinner">
+            <div className="sf-spinner-ring" />
+            <span className="sf-spinner-emoji">✨</span>
+          </div>
+          <h3 className="sf-loading-title">Finding your perfect match…</h3>
+          <p className="sf-loading-sub">Analysing your style preferences</p>
+          <div className="sf-loading-tags">
+            {Object.values(answers).map((v, i) => (
+              <span key={i} className="sf-loading-tag">
+                {Array.isArray(v)
+                  ? `Rs. ${v[0].toLocaleString()} – ${v[1] > 900000 ? "∞" : v[1].toLocaleString()}`
+                  : String(v)}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Product Picker Modal */}
-      {showPicker && (
-        <ProductPicker
-          onSelect={handleProductSelect}
-          onClose={() => setShowPicker(false)}
-        />
+      {/* ── Results Phase ── */}
+      {phase === "results" && (
+        <div className="sf-results-wrap" id="sf-results">
+          {/* Summary banner */}
+          <div className="sf-results-banner">
+            <div className="sf-banner-left">
+              <div className="sf-banner-title">
+                🎉 We found <span>{recommended.length}</span> matches for you!
+              </div>
+              <div className="sf-banner-sub">
+                Based on your preferences — sorted by best match
+              </div>
+            </div>
+            <button
+              id="sf-restart-btn"
+              className="sf-restart-btn"
+              onClick={handleRestart}
+            >
+              <HiRefresh /> Start Over
+            </button>
+          </div>
+
+          {/* Answer pills */}
+          <div className="sf-answer-pills">
+            {STEPS.map((step) => {
+              const ans = answers[step.id];
+              if (!ans) return null;
+              const opt = step.options.find(
+                (o) => JSON.stringify(o.value) === JSON.stringify(ans)
+              );
+              return opt ? (
+                <span key={step.id} className="sf-answer-pill">
+                  {opt.emoji} {opt.label}
+                </span>
+              ) : null;
+            })}
+          </div>
+
+          {/* Products grid */}
+          {loading ? (
+            <div className="sf-results-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton" style={{ height: 380, borderRadius: 16 }} />
+              ))}
+            </div>
+          ) : recommended.length === 0 ? (
+            <div className="sf-empty">
+              <div style={{ fontSize: 64 }}>👗</div>
+              <h3>No exact matches found</h3>
+              <p>Try different preferences — our collection is growing!</p>
+              <button className="sf-restart-btn" onClick={handleRestart}>
+                <HiRefresh /> Try Again
+              </button>
+            </div>
+          ) : (
+            <div className="sf-results-grid" id="sf-results-grid">
+              {recommended.map((product, i) => (
+                <ProductCard key={product._id} product={product} rank={i + 1} />
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 };
 
-export default VirtualTryOnPage;
+export default StyleFinderPage;

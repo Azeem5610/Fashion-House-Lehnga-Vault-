@@ -138,56 +138,91 @@ exports.deleteEstimation = async (req, res) => {
   }
 };
 
-// @desc    Get cost estimation analytics/summary
+// @desc    Get cost estimation analytics/summary (Optimized via Aggregation Pipeline)
 // @route   GET /api/cost-estimations/analytics
 // @access  superadmin
 exports.getAnalytics = async (req, res) => {
   try {
-    const estimations = await CostEstimation.find();
+    const stats = await CostEstimation.aggregate([
+      {
+        $addFields: {
+          extras: {
+            $reduce: {
+              input: { $ifNull: ["$extraCosts", []] },
+              initialValue: 0,
+              in: { $add: ["$$value", { $ifNull: ["$$this.amount", 0] }] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          baseCost: {
+            $add: [
+              { $ifNull: ["$fabricCost", 0] },
+              { $ifNull: ["$embroideryCost", 0] },
+              { $ifNull: ["$laborCost", 0] },
+              { $ifNull: ["$accessoriesCost", 0] },
+              { $ifNull: ["$dyeingCost", 0] },
+              "$extras",
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          sellingPriceVal: {
+            $cond: [
+              { $gt: [{ $ifNull: ["$sellingPrice", 0] }, 0] },
+              "$sellingPrice",
+              {
+                $add: [
+                  "$baseCost",
+                  {
+                    $divide: [
+                      { $multiply: ["$baseCost", { $ifNull: ["$profitMarginPercent", 0] }] },
+                      100,
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalEstimations: { $sum: 1 },
+          totalFabric: { $sum: { $ifNull: ["$fabricCost", 0] } },
+          totalEmbroidery: { $sum: { $ifNull: ["$embroideryCost", 0] } },
+          totalLabor: { $sum: { $ifNull: ["$laborCost", 0] } },
+          totalAccessories: { $sum: { $ifNull: ["$accessoriesCost", 0] } },
+          totalDyeing: { $sum: { $ifNull: ["$dyeingCost", 0] } },
+          totalExtras: { $sum: "$extras" },
+          totalBaseCost: { $sum: "$baseCost" },
+          totalSellingPrice: { $sum: "$sellingPriceVal" },
+        },
+      },
+    ]);
 
-    const totalEstimations = estimations.length;
-    let totalBaseCost = 0;
-    let totalSellingPrice = 0;
-    let totalProfit = 0;
-
-    // Cost category totals
-    let totalFabric = 0;
-    let totalEmbroidery = 0;
-    let totalLabor = 0;
-    let totalAccessories = 0;
-    let totalDyeing = 0;
-    let totalExtras = 0;
-
-    estimations.forEach((est) => {
-      totalFabric += est.fabricCost || 0;
-      totalEmbroidery += est.embroideryCost || 0;
-      totalLabor += est.laborCost || 0;
-      totalAccessories += est.accessoriesCost || 0;
-      totalDyeing += est.dyeingCost || 0;
-
-      const extras = (est.extraCosts || []).reduce((s, e) => s + (e.amount || 0), 0);
-      totalExtras += extras;
-
-      const base = (est.fabricCost || 0) + (est.embroideryCost || 0) + (est.laborCost || 0) +
-                   (est.accessoriesCost || 0) + (est.dyeingCost || 0) + extras;
-      totalBaseCost += base;
-
-      const selling = est.sellingPrice || (base + (base * (est.profitMarginPercent || 0)) / 100);
-      totalSellingPrice += selling;
-      totalProfit += selling - base;
-    });
+    const result = stats?.[0] || {};
+    const totalEstimations = result.totalEstimations || 0;
+    const totalBaseCost = result.totalBaseCost || 0;
+    const totalSellingPrice = result.totalSellingPrice || 0;
+    const totalProfit = totalSellingPrice - totalBaseCost;
 
     const avgProfitMargin = totalBaseCost > 0
-      ? ((totalProfit / totalBaseCost) * 100).toFixed(1)
+      ? Number(((totalProfit / totalBaseCost) * 100).toFixed(1))
       : 0;
 
     const costBreakdown = [
-      { name: "Fabric", value: totalFabric },
-      { name: "Embroidery", value: totalEmbroidery },
-      { name: "Labor", value: totalLabor },
-      { name: "Accessories", value: totalAccessories },
-      { name: "Dyeing", value: totalDyeing },
-      { name: "Extras", value: totalExtras },
+      { name: "Fabric", value: result.totalFabric || 0 },
+      { name: "Embroidery", value: result.totalEmbroidery || 0 },
+      { name: "Labor", value: result.totalLabor || 0 },
+      { name: "Accessories", value: result.totalAccessories || 0 },
+      { name: "Dyeing", value: result.totalDyeing || 0 },
+      { name: "Extras", value: result.totalExtras || 0 },
     ].filter((c) => c.value > 0);
 
     res.json({
@@ -195,11 +230,10 @@ exports.getAnalytics = async (req, res) => {
       totalBaseCost,
       totalSellingPrice,
       totalProfit,
-      avgProfitMargin: Number(avgProfitMargin),
+      avgProfitMargin,
       costBreakdown,
     });
-  } catch (err) {
-    console.error("Analytics error:", err);
-    res.status(500).json({ message: "Failed to fetch analytics" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

@@ -63,16 +63,14 @@ if (ADMIN_ENABLED) {
 // Customer Pages — lazy load
 const AppointmentPage = lazy(() => import("./pages/AppointmentPage"));
 const WishlistPage = lazy(() => import("./pages/WishlistPage"));
-const MoodboardPage = lazy(() => import("./pages/MoodboardPage"));
 const OrderTrackingPage = lazy(() => import("./pages/OrderTrackingPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
-const VirtualTryOnPage = lazy(() => import("./pages/VirtualTryOnPage"));
+const StyleFinderPage = lazy(() => import("./pages/VirtualTryOnPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 
 // Forgot / Reset Password Pages — lazy load
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
-const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 
 // Admin role list
 const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
@@ -112,7 +110,8 @@ function AppContent() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/reset-password" element={<Navigate to="/forgot-password" replace />} />
+          <Route path="/reset-password/:token" element={<Navigate to="/forgot-password" replace />} />
 
           {/* Customer Routes */}
           <Route path="/" element={<RootRedirect />} />
@@ -137,14 +136,11 @@ function AppContent() {
           <Route path="/wishlist" element={
             <ProtectedRoute><WishlistPage /></ProtectedRoute>
           } />
-          <Route path="/moodboard" element={
-            <ProtectedRoute><MoodboardPage /></ProtectedRoute>
-          } />
           <Route path="/profile" element={
             <ProtectedRoute><ProfilePage /></ProtectedRoute>
           } />
-          <Route path="/virtual-try-on" element={
-            <ProtectedRoute><VirtualTryOnPage /></ProtectedRoute>
+          <Route path="/style-finder" element={
+            <ProtectedRoute><StyleFinderPage /></ProtectedRoute>
           } />
 
           {/* Customer — Order Tracking */}

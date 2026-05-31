@@ -9,43 +9,43 @@ const FABRICS = [
     name: "Net (China)", 
     icon: <GiSpinningSword />, 
     description: "Lightweight & elegant",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230346/net_lkcz6c.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230346/net_lkcz6c.jpg" 
   },
   { 
     name: "Pure China Krinkle", 
     icon: <GiCrystalGrowth />, 
     description: "Rich textured finish",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230346/pure_china_zseuax.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230346/pure_china_zseuax.jpg" 
   },
   { 
     name: "Tussle Silk", 
     icon: <GiRibbonShield />, 
     description: "Luxurious silk blend",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230352/tussle_silk_aqzn69.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230352/tussle_silk_aqzn69.jpg" 
   },
   { 
     name: "Organza", 
     icon: <GiFlowerPot />, 
     description: "Sheer & sophisticated",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230348/organza_q4j9yk.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230348/organza_q4j9yk.jpg" 
   },
   { 
     name: "Barosha", 
     icon: <GiCrown />, 
     description: "Traditional elegance",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230346/barosha_s0krvn.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230346/barosha_s0krvn.jpg" 
   },
   { 
     name: "Velvet (Winter)", 
     icon: <GiSnowflake1 />, 
     description: "Warm & royal",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230346/velvet_xwacgh.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230346/velvet_xwacgh.jpg" 
   },
   { 
     name: "Shafon Krinkle", 
     icon: <GiWaveSurfer />, 
     description: "Flowing & graceful",
-    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/v1780230344/shafon_krinkle_ieixmu.jpg" 
+    image: "https://res.cloudinary.com/dgoif3yvs/image/upload/c_fill,g_auto,w_600,q_auto,f_auto/v1780230344/shafon_krinkle_ieixmu.jpg" 
   },
 ];
 

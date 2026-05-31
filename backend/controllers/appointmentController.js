@@ -1,4 +1,6 @@
 const Appointment = require("../models/Appointment");
+const Notification = require("../models/Notification");
+const sendEmail = require("../services/emailService");
 
 // ── CUSTOMER: Book appointment ──
 exports.bookAppointment = async (req, res, next) => {
@@ -106,6 +108,57 @@ exports.updateAppointmentStatus = async (req, res, next) => {
     const populated = await Appointment.findById(appointment._id)
       .populate("customer", "name email phone")
       .populate("approvedBy", "name");
+
+    // Notify customer of status change
+    const customerMessages = {
+      approved: `Your appointment on ${new Date(appointment.date).toLocaleDateString("en-PK")} at ${appointment.time} has been approved! ${appointment.meetingLink ? "Meeting link: " + appointment.meetingLink : ""}`,
+      rejected: "Your appointment request has been declined. Please contact us to reschedule.",
+      completed: "Your appointment has been marked as completed. Thank you!",
+    };
+
+    if (status && customerMessages[status]) {
+      try {
+        await Notification.create({
+          user: appointment.customer,
+          type: "appointment",
+          title: `Appointment ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+          message: customerMessages[status],
+          link: "/my-appointments",
+          data: { appointmentId: appointment._id, status },
+        });
+
+        const io = req.app.get("io");
+        if (io) {
+          io.to(`user_${appointment.customer}`).emit("notification", {
+            type: "appointment",
+            title: `Appointment ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+            message: customerMessages[status],
+            createdAt: new Date(),
+          });
+        }
+
+        // Send email to customer (Bug #APT-2 / Phase 4 Enhancement)
+        if (populated.customer?.email) {
+          const subject = `Appointment ${status.charAt(0).toUpperCase() + status.slice(1)} - Fashion House`;
+          const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+              <h2 style="color: #b59410;">Fashion House Appointment Update</h2>
+              <p>Dear ${populated.customer.name || "Customer"},</p>
+              <p>${customerMessages[status]}</p>
+              <p>If you have any questions, please contact us.</p>
+              <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;"/>
+              <p style="color: #9ca3af; font-size: 12px;">This is an automated email. Please do not reply.</p>
+            </div>
+          `;
+          await sendEmail({
+            to: populated.customer.email,
+            subject,
+            text: customerMessages[status],
+            html,
+          });
+        }
+      } catch (e) { /* notification is non-critical */ }
+    }
 
     res.json(populated);
   } catch (err) {

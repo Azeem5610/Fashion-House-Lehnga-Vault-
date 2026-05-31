@@ -180,40 +180,91 @@ exports.deleteMaintenanceLog = async (req, res, next) => {
   }
 };
 
-// ── ANALYTICS ──
+// ── ANALYTICS (Optimized via Aggregation Pipelines) ──
 exports.getMachineryAnalytics = async (req, res, next) => {
   try {
-    const machines = await Machinery.find();
-    const logs = await MaintenanceLog.find();
+    const now = new Date();
+    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const totalMachines = machines.length;
-    const operational = machines.filter((m) => m.isOperational).length;
+    const [machineStats] = await Machinery.aggregate([
+      {
+        $facet: {
+          summary: [
+            {
+              $group: {
+                _id: null,
+                totalMachines: { $sum: 1 },
+                operational: { $sum: { $cond: ["$isOperational", 1, 0] } },
+                maintenanceDue: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $and: [
+                          { $ne: ["$nextMaintenance", null] },
+                          { $lte: ["$nextMaintenance", weekFromNow] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                maintenanceOverdue: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $and: [
+                          { $ne: ["$nextMaintenance", null] },
+                          { $lt: ["$nextMaintenance", now] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+          conditionBreakdown: [
+            { $group: { _id: "$condition", count: { $sum: 1 } } },
+          ],
+          typeBreakdown: [
+            { $group: { _id: "$type", count: { $sum: 1 } } },
+          ],
+        },
+      },
+    ]);
+
+    const summary = machineStats?.summary?.[0] || {};
+    const totalMachines = summary.totalMachines || 0;
+    const operational = summary.operational || 0;
     const nonOperational = totalMachines - operational;
+    const maintenanceDue = summary.maintenanceDue || 0;
+    const maintenanceOverdue = summary.maintenanceOverdue || 0;
 
     const conditionBreakdown = {};
-    machines.forEach((m) => {
-      conditionBreakdown[m.condition] = (conditionBreakdown[m.condition] || 0) + 1;
+    machineStats?.conditionBreakdown?.forEach((item) => {
+      if (item._id) conditionBreakdown[item._id] = item.count;
     });
 
     const typeBreakdown = {};
-    machines.forEach((m) => {
-      typeBreakdown[m.type] = (typeBreakdown[m.type] || 0) + 1;
+    machineStats?.typeBreakdown?.forEach((item) => {
+      if (item._id) typeBreakdown[item._id] = item.count;
     });
 
-    const totalMaintenanceCost = logs.reduce((sum, l) => sum + (l.cost || 0), 0);
-    const totalDowntime = logs.reduce((sum, l) => sum + (l.downtimeHours || 0), 0);
+    const [logStats] = await MaintenanceLog.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalMaintenanceCost: { $sum: "$cost" },
+          totalDowntime: { $sum: "$downtimeHours" },
+        },
+      },
+    ]);
 
-    // Machines needing maintenance soon (within 7 days)
-    const now = new Date();
-    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const maintenanceDue = machines.filter(
-      (m) => m.nextMaintenance && m.nextMaintenance <= weekFromNow
-    ).length;
-
-    // Overdue maintenance
-    const maintenanceOverdue = machines.filter(
-      (m) => m.nextMaintenance && m.nextMaintenance < now
-    ).length;
+    const totalMaintenanceCost = logStats?.totalMaintenanceCost || 0;
+    const totalDowntime = logStats?.totalDowntime || 0;
 
     // Monthly maintenance cost (last 6 months)
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);

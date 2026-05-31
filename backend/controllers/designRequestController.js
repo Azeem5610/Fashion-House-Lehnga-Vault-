@@ -175,6 +175,8 @@ exports.convertToOrder = async (req, res) => {
       shippingAddress,
       notes: `Design Request: ${request.requestType}. ${request.description}`,
       status: "confirmed",
+      paymentMethod: "cod",         // Custom orders are direct arrangements — no SafePay session
+      paymentStatus: "cod_pending", // Allows pre-save hook to pass without completed payment
     });
 
     // Link order to design request

@@ -103,14 +103,14 @@ exports.updateItem = async (req, res) => {
 // ── Reusable low stock checker ──
 const checkLowStock = async (item, io) => {
   try {
-    if (item.currentQuantity <= item.reorderLevel) {
+    if (item.quantity <= item.reorderLevel) {
       // Notify all superadmins
       const admins = await User.find({ role: "superadmin" }).select("_id");
       const notifications = admins.map((admin) => ({
         user: admin._id,
         type: "inventory",
         title: "Low Stock Alert",
-        message: `"${item.name}" (${item.sku}) is low — ${item.currentQuantity} ${item.unit} remaining (reorder level: ${item.reorderLevel}).`,
+        message: `"${item.name}" (${item.sku}) is low — ${item.quantity} ${item.unit} remaining (reorder level: ${item.reorderLevel}).`,
         link: "/admin/inventory",
         data: { inventoryId: item._id, sku: item.sku },
       }));
@@ -121,7 +121,7 @@ const checkLowStock = async (item, io) => {
         io.to("role_superadmin").to("role_inventoryManager").emit("notification", {
           type: "inventory",
           title: "Low Stock Alert",
-          message: `"${item.name}" is running low (${item.currentQuantity} remaining)`,
+          message: `"${item.name}" is running low (${item.quantity} remaining)`,
           createdAt: new Date(),
         });
       }

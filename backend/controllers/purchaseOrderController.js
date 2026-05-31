@@ -1,5 +1,6 @@
 const PurchaseOrder = require("../models/PurchaseOrder");
 const Vendor = require("../models/Vendor");
+const Inventory = require("../models/Inventory");
 
 // ── CREATE purchase order + generate WhatsApp link ──
 exports.createPurchaseOrder = async (req, res) => {
@@ -104,13 +105,26 @@ exports.updatePurchaseOrderStatus = async (req, res) => {
     const { status } = req.body;
     po.status = status;
 
-    // If received, set actual delivery date and update vendor stats
+    // If received, set actual delivery date, update vendor stats, and stock inventory
     if (status === "received") {
       po.actualDelivery = new Date();
+
+      // Update vendor completed orders count
       const vendor = await Vendor.findById(po.vendor);
       if (vendor) {
         vendor.completedOrders += 1;
         await vendor.save();
+      }
+
+      // Stock up inventory for each received item that has an inventory link
+      for (const item of po.items) {
+        if (item.inventory) {
+          await Inventory.findByIdAndUpdate(
+            item.inventory,
+            { $inc: { quantity: item.quantity } },
+            { new: true }
+          );
+        }
       }
     }
 

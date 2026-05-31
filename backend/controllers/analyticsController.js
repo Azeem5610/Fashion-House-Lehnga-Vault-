@@ -9,17 +9,15 @@ const Appointment = require("../models/Appointment");
 const Review = require("../models/Review");
 const Employee = require("../models/Employee");
 const Task = require("../models/Task");
-const VirtualTryOn = require("../models/VirtualTryOn");
 
 // ─── DASHBOARD STATS ───────────────────────────────────────────
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [totalOrders, totalProducts, totalVendors, totalCustomers, totalTryOnSessions] = await Promise.all([
+    const [totalOrders, totalProducts, totalVendors, totalCustomers] = await Promise.all([
       Order.countDocuments(),
       Product.countDocuments(),
       Vendor.countDocuments(),
       User.countDocuments({ role: "customer" }),
-      VirtualTryOn.countDocuments(),
     ]);
 
     // Revenue calculation — only count paid orders (Bug #2)
@@ -49,7 +47,6 @@ exports.getDashboardStats = async (req, res) => {
       pendingOrders,
       recentOrders,
       lowStockProducts,
-      totalTryOnSessions,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -196,24 +193,22 @@ exports.getErpOverview = async (req, res) => {
       activeEmployeeTasks,
       inProgressTracking,
       overdueTracking,
-      totalTryOnSessions,
     ] = await Promise.all([
       DesignRequest.countDocuments({ status: { $in: ["pending", "contacted"] } }),
       Appointment.countDocuments({ status: "pending" }),
-      Inventory.countDocuments({ $expr: { $lte: ["$currentQuantity", "$reorderLevel"] } }),
-      Review.countDocuments({ status: "pending" }),
+      Inventory.countDocuments({ $expr: { $lte: ["$quantity", "$reorderLevel"] } }),
+      Review.countDocuments({ isApproved: false }),
       Task.countDocuments({ status: { $in: ["pending", "in-progress"] } }),
       OrderTracking.countDocuments({ currentStage: { $ne: "Delivered" } }),
       OrderTracking.countDocuments({
         currentStage: { $ne: "Delivered" },
         estimatedCompletion: { $lt: now },
       }),
-      VirtualTryOn.countDocuments(),
     ]);
 
     // Average review rating
     const ratingResult = await Review.aggregate([
-      { $match: { status: "approved" } },
+      { $match: { isApproved: true } },
       { $group: { _id: null, avg: { $avg: "$rating" }, count: { $sum: 1 } } },
     ]);
 
@@ -225,7 +220,6 @@ exports.getErpOverview = async (req, res) => {
       activeEmployeeTasks,
       inProgressTracking,
       overdueTracking,
-      totalTryOnSessions,
       averageRating: ratingResult[0]?.avg ? Math.round(ratingResult[0].avg * 10) / 10 : 0,
       totalApprovedReviews: ratingResult[0]?.count || 0,
     });

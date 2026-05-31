@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { HiMenu, HiX, HiSparkles } from "react-icons/hi";
+import { HiMenu, HiX, HiSparkles, HiLightningBolt } from "react-icons/hi";
 import NotificationDropdown from "./NotificationDropdown";
 import "./Navbar.css";
 
@@ -68,12 +68,12 @@ const Navbar = () => {
                   <li><Link to="/wishlist" className={isActive("/wishlist")} onClick={() => setMenuOpen(false)}>Wishlist</Link></li>
                   <li>
                     <Link
-                      to="/virtual-try-on"
-                      className={`nav-tryon-link ${isActive("/virtual-try-on")}`}
+                      to="/style-finder"
+                      className={`nav-tryon-link ${isActive("/style-finder")}`}
                       onClick={() => setMenuOpen(false)}
                     >
-                      <HiSparkles />
-                      Try On
+                      <HiLightningBolt />
+                      Style Finder
                     </Link>
                   </li>
                 </>
@@ -84,9 +84,6 @@ const Navbar = () => {
           {/* Right actions */}
           <div className="nav-actions">
             <NotificationDropdown />
-            <Link to="/moodboard" className="nav-moodboard-btn" title="Moodboard">
-              Moodboard
-            </Link>
             <Link to="/profile" className="nav-avatar" title={user.name}>
               {userInitial}
             </Link>

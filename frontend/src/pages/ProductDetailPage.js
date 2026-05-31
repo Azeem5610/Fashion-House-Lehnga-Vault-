@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../utils/api";
 import { useAuth } from "../context/AuthContext";
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiBookmark } from "react-icons/hi";
+import { HiArrowLeft, HiHeart, HiOutlineHeart } from "react-icons/hi";
 import { FaWhatsapp } from "react-icons/fa";
 import { GiDress } from "react-icons/gi";
 import { toast } from "react-toastify";
@@ -24,8 +24,6 @@ const ProductDetailPage = () => {
   const [ordering, setOrdering] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
-  const [moodboards, setMoodboards] = useState([]);
-  const [showMbDropdown, setShowMbDropdown] = useState(false);
   const [orderPlacedSuccess, setOrderPlacedSuccess] = useState(false);
 
   useEffect(() => {
@@ -68,23 +66,7 @@ const ProductDetailPage = () => {
     setWishlistLoading(false);
   };
 
-  const fetchMoodboards = async () => {
-    try {
-      const res = await API.get("/moodboards/my");
-      setMoodboards(res.data.moodboards || []);
-      setShowMbDropdown(true);
-    } catch { toast.error("Failed to load moodboards"); }
-  };
 
-  const addToMoodboard = async (boardId) => {
-    try {
-      await API.post(`/moodboards/${boardId}/products`, { productId: id });
-      toast.success("Added to moodboard!");
-      setShowMbDropdown(false);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Already in moodboard");
-    }
-  };
 
   const handleOrder = async (e) => {
     e.preventDefault();
@@ -165,7 +147,7 @@ const ProductDetailPage = () => {
               Rs. {product.price?.toLocaleString()} <span>PKR</span>
             </div>
 
-            {/* Wishlist + Moodboard actions */}
+            {/* Wishlist action */}
             <div style={{ display: "flex", gap: 10, margin: "14px 0" }}>
               <button
                 className={`btn btn-sm ${inWishlist ? "btn-gold" : "btn-outline"}`}
@@ -176,43 +158,6 @@ const ProductDetailPage = () => {
                 {inWishlist ? <HiHeart /> : <HiOutlineHeart />}
                 {inWishlist ? "In Wishlist" : "Add to Wishlist"}
               </button>
-              <div style={{ position: "relative" }}>
-                <button className="btn btn-sm btn-outline" onClick={fetchMoodboards} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <HiBookmark /> Save to Moodboard
-                </button>
-                {showMbDropdown && (
-                  <div style={{
-                    position: "absolute", top: "110%", left: 0, background: "var(--bg-card)",
-                    border: "1px solid var(--border)", borderRadius: 10, padding: 8, minWidth: 200,
-                    zIndex: 50, boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-                  }}>
-                    {moodboards.length === 0 ? (
-                      <div style={{ padding: 12, fontSize: "0.82rem", color: "var(--text-muted)" }}>No moodboards yet. Create one first.</div>
-                    ) : (
-                      moodboards.map(mb => (
-                        <div key={mb._id}
-                          onClick={() => addToMoodboard(mb._id)}
-                          style={{
-                            padding: "8px 12px", cursor: "pointer", borderRadius: 6,
-                            fontSize: "0.84rem", color: "var(--text-primary)",
-                            transition: "background 0.15s",
-                          }}
-                          onMouseEnter={e => e.target.style.background = "var(--bg-hover)"}
-                          onMouseLeave={e => e.target.style.background = "transparent"}
-                        >
-                          {mb.name}
-                        </div>
-                      ))
-                    )}
-                    <div style={{ borderTop: "1px solid var(--border)", marginTop: 4, paddingTop: 4 }}>
-                      <div
-                        onClick={() => setShowMbDropdown(false)}
-                        style={{ padding: "6px 12px", cursor: "pointer", fontSize: "0.78rem", color: "var(--text-muted)", textAlign: "center" }}
-                      >Close</div>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
 
             {product.description && (

@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const TokenBlacklist = require("../models/TokenBlacklist");
 
 // Protect routes — verify JWT and attach user to req
 exports.protect = async (req, res, next) => {
@@ -9,6 +10,12 @@ exports.protect = async (req, res, next) => {
     try {
       token = token.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Check if token has been blacklisted (user logged out)
+      const isBlacklisted = await TokenBlacklist.findOne({ token });
+      if (isBlacklisted) {
+        return res.status(401).json({ message: "Token has been revoked. Please log in again.", code: "TOKEN_REVOKED" });
+      }
 
       // Attach full user info (excluding password & refreshToken)
       const user = await User.findById(decoded.id);

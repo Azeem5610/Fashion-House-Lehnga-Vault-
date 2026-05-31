@@ -83,7 +83,6 @@ app.use("/api/employees", require("./routes/employeeRoutes"));
 app.use("/api/machinery", require("./routes/machineryRoutes"));
 app.use("/api/appointments", require("./routes/appointmentRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
-app.use("/api/moodboards", require("./routes/moodboardRoutes"));
 
 // Phase 3 & 4 — New module routes
 app.use("/api/order-tracking", require("./routes/orderTrackingRoutes"));
@@ -93,9 +92,6 @@ app.use("/api/notifications", require("./routes/notificationRoutes"));
 // New modules — Cost Estimation & Rental Records
 app.use("/api/cost-estimations", require("./routes/costEstimationRoutes"));
 app.use("/api/rentals", require("./routes/rentalRoutes"));
-
-// Virtual Try-On module
-app.use("/api/virtual-tryon", require("./routes/virtualTryOnRoutes"));
 
 // SafePay Payment Integration Routes
 app.use("/api/payments", require("./routes/paymentRoutes"));

@@ -14,6 +14,8 @@ const {
   updateTask,
   deleteTask,
   getProductivity,
+  getMyTasks,
+  updateMyTaskStatus,
 } = require("../controllers/employeeController");
 
 const auth = [protect, roleAuth("superadmin", "productionManager")];
@@ -37,5 +39,10 @@ router.post("/tasks", ...auth, createTask);
 router.get("/tasks/all", ...auth, getAllTasks);
 router.put("/tasks/:taskId", ...auth, updateTask);
 router.delete("/tasks/:taskId", ...auth, deleteTask);
+
+// Tailor self-service task routes
+const tailorAuth = [protect, roleAuth("tailor", "superadmin", "productionManager")];
+router.get("/tasks/my", ...tailorAuth, getMyTasks);
+router.patch("/tasks/:taskId/status", ...tailorAuth, updateMyTaskStatus);
 
 module.exports = router;

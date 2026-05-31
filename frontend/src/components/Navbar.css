@@ -115,6 +115,7 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  margin-left: 28px; /* Breathing room between Style Finder and actions */
 }
 
 /* Moodboard ghost button */
@@ -189,6 +190,10 @@
 
   .nav-inner {
     height: 60px;
+  }
+
+  .nav-actions {
+    margin-left: 0;
   }
 
   .nav-hamburger {

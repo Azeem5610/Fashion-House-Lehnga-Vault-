@@ -337,3 +337,87 @@ exports.getProductivity = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// ── GET my assigned tasks (tailor self-service) ──
+exports.getMyTasks = async (req, res) => {
+  try {
+    const { status, type } = req.query;
+    const filter = { assignedTo: req.user.employeeId };
+
+    // Find the Employee record linked to this user account
+    const Employee = require("../models/Employee");
+    const employee = await Employee.findOne({ userId: req.user.id });
+    if (!employee) {
+      return res.status(404).json({ message: "No employee profile found for your account" });
+    }
+
+    filter.assignedTo = employee._id;
+    if (status) filter.status = status;
+    if (type) filter.type = type;
+
+    const tasks = await Task.find(filter)
+      .populate("order", "status totalPrice shippingAddress")
+      .populate("createdBy", "name")
+      .sort({ priority: -1, dueDate: 1, createdAt: -1 });
+
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ── UPDATE my task status (tailor self-service — limited fields only) ──
+exports.updateMyTaskStatus = async (req, res) => {
+  try {
+    const { status, notes } = req.body;
+
+    // Tailors can only update status and notes — not reassign or change priority
+    const allowedStatuses = ["in-progress", "completed"];
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: `Tailors can only set status to: ${allowedStatuses.join(", ")}`,
+      });
+    }
+
+    // Find the employee record to verify task ownership
+    const Employee = require("../models/Employee");
+    const employee = await Employee.findOne({ userId: req.user.id });
+    if (!employee) {
+      return res.status(404).json({ message: "No employee profile found for your account" });
+    }
+
+    const task = await Task.findOne({
+      _id: req.params.taskId,
+      assignedTo: employee._id, // ownership check — can only update own tasks
+    });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found or not assigned to you" });
+    }
+
+    const updateData = { status };
+    if (notes !== undefined) updateData.notes = notes;
+    if (status === "completed") updateData.completedDate = new Date();
+    if (status === "in-progress" && !task.startDate) updateData.startDate = new Date();
+
+    const updated = await Task.findByIdAndUpdate(task._id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate("assignedTo", "name type specialization");
+
+    // Sync tracking stage if task is linked to an order
+    if (updated.order) {
+      await syncStageWithTask(
+        updated.order,
+        updated.type,
+        updated.status,
+        updated.assignedTo._id || updated.assignedTo,
+        req.user,
+        req.app.get("io")
+      );
+    }
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
