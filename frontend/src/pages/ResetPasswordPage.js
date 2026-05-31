@@ -1,40 +1,47 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { GiDiamondRing } from "react-icons/gi";
-import { HiMail, HiLockClosed, HiSparkles, HiStar, HiShieldCheck } from "react-icons/hi";
-import "./LoginPage.css";
+import { HiLockClosed, HiSparkles, HiStar, HiShieldCheck } from "react-icons/hi";
+import API from "../utils/api";
+import { toast } from "react-toastify";
+import "./ResetPasswordPage.css";
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
+const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const { login } = useAuth();
+  const { token } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
-      const data = await login(email, password);
-      // Role-aware redirect
-      if (["superadmin", "inventoryManager", "productionManager", "tailor"].includes(data.role)) {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
     }
-    setLoading(false);
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await API.post(`/auth/reset-password/${token}`, { password });
+      toast.success(data.message || "Password reset successfully!");
+      navigate("/login");
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid or expired reset token. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="login-page">
+    <div className="reset-password-page">
       {/* Left Brand Panel */}
       <div className="login-brand-panel">
         <div className="login-particles">
@@ -63,7 +70,7 @@ const LoginPage = () => {
             </div>
             <div className="login-brand-feature">
               <div className="login-brand-feature-icon"><HiShieldCheck /></div>
-              <span>Custom Orders & Design from Picture</span>
+              <span>Secure Account Protection</span>
             </div>
           </div>
         </div>
@@ -74,49 +81,22 @@ const LoginPage = () => {
         <div className="login-container">
           <div className="login-card">
             <div className="login-header">
-              <div className="login-header-mobile-logo">
-                <GiDiamondRing />
-              </div>
-              <h1>Welcome Back</h1>
-              <p>
-                Don't have an account?{" "}
-                <Link to="/register">Create one</Link>
-              </p>
+              <h1>Create New Password</h1>
+              <p>Please enter your new password below.</p>
             </div>
 
             {error && <div className="login-error">{error}</div>}
 
             <form className="login-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label className="form-label">Email Address</label>
-                <div className="input-wrapper">
-                  <HiMail className="input-icon" />
-                  <input
-                    id="login-email"
-                    className="form-input"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
-                  <Link to="/forgot-password" style={{ fontSize: "0.8rem", color: "#C2185B", fontWeight: 600, textDecoration: "none" }}>
-                    Forgot Password?
-                  </Link>
-                </div>
+                <label className="form-label">New Password</label>
                 <div className="input-wrapper">
                   <HiLockClosed className="input-icon" />
                   <input
-                    id="login-password"
+                    id="reset-password"
                     className="form-input"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Min 6 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -124,20 +104,35 @@ const LoginPage = () => {
                 </div>
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Confirm New Password</label>
+                <div className="input-wrapper">
+                  <HiLockClosed className="input-icon" />
+                  <input
+                    id="reset-confirm-password"
+                    className="form-input"
+                    type="password"
+                    placeholder="Re-enter new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
               <button
-                id="login-submit"
+                id="reset-submit"
                 type="submit"
                 className={`btn btn-gold btn-lg login-submit ${loading ? "loading" : ""}`}
                 disabled={loading}
               >
                 {loading && <span className="btn-spinner" />}
-                {loading ? "Signing In..." : "Sign In"}
+                {loading ? "Resetting password..." : "Update Password"}
               </button>
             </form>
 
             <div className="login-footer">
-              New to Fashion House?{" "}
-              <Link to="/register">Create an account</Link>
+              Remember your password? <Link to="/login">Back to Login</Link>
             </div>
           </div>
         </div>
@@ -146,4 +141,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ResetPasswordPage;

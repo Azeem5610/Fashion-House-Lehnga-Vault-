@@ -9,6 +9,8 @@ const {
   getProfile,
   updateProfile,
   changePassword,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -17,6 +19,8 @@ router.post("/register", register);
 router.post("/signup", signup); // backward compat
 router.post("/login", login);
 router.post("/refresh-token", refreshToken);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 // Protected routes
 router.post("/logout", protect, logout);

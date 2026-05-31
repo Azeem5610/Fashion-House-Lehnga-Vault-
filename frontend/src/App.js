@@ -70,6 +70,10 @@ const VirtualTryOnPage = lazy(() => import("./pages/VirtualTryOnPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 
+// Forgot / Reset Password Pages — lazy load
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+
 // Admin role list
 const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
 
@@ -107,6 +111,8 @@ function AppContent() {
           {/* Public */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
           {/* Customer Routes */}
           <Route path="/" element={<RootRedirect />} />
