@@ -45,6 +45,15 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await API.post("/auth/login", { email, password });
+    
+    // Block admin logins if the admin panel is disabled on this environment (e.g. Vercel)
+    const isAdminRole = ADMIN_ROLES.includes(data.role);
+    const isLocalAdminEnabled = process.env.REACT_APP_ENABLE_ADMIN === "true";
+    
+    if (isAdminRole && !isLocalAdminEnabled) {
+      throw new Error("Admin login is disabled on this environment. Please run the admin panel locally.");
+    }
+
     persistUser(data);
     return data;
   };
