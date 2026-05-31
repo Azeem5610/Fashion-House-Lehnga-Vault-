@@ -35,7 +35,12 @@ const sendEmail = async (options) => {
       html: options.html,
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (err) {
+      console.error("❌ nodemailer sendMail Error:", err);
+      throw err;
+    }
   } else {
     // ── FALLBACK FOR LOCAL DEV / NO SMTP CONFIG ──
     console.log("\n====================================================================");
