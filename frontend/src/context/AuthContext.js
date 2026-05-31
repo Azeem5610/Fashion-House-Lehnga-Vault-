@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import API from "../utils/api";
+import API, {
+  STORAGE_KEY_ADMIN,
+  STORAGE_KEY_CUSTOMER,
+  getActiveStorageKey,
+} from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -8,25 +12,34 @@ export const useAuth = () => useContext(AuthContext);
 // Admin/staff roles that should see the admin panel
 const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
 
+// ── Helpers ──
+
+// Determine the correct storage key for a given user role
+const storageKeyForRole = (role) =>
+  ADMIN_ROLES.includes(role) ? STORAGE_KEY_ADMIN : STORAGE_KEY_CUSTOMER;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // On mount, load user from the storage key that matches the current path
   useEffect(() => {
-    const stored = localStorage.getItem("fashionHouseUser");
+    const key = getActiveStorageKey();
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
         setUser(JSON.parse(stored));
       } catch {
-        localStorage.removeItem("fashionHouseUser");
+        localStorage.removeItem(key);
       }
     }
     setLoading(false);
   }, []);
 
-  // Persist user to localStorage whenever it changes
+  // Persist user to the correct role-scoped localStorage key
   const persistUser = useCallback((data) => {
-    localStorage.setItem("fashionHouseUser", JSON.stringify(data));
+    const key = storageKeyForRole(data.role);
+    localStorage.setItem(key, JSON.stringify(data));
     setUser(data);
   }, []);
 
@@ -55,7 +68,9 @@ export const AuthProvider = ({ children }) => {
     } catch {
       // Continue logout even if API call fails
     }
-    localStorage.removeItem("fashionHouseUser");
+    // Clear only the storage key for the current context
+    const key = getActiveStorageKey();
+    localStorage.removeItem(key);
     setUser(null);
   };
 
@@ -74,7 +89,8 @@ export const AuthProvider = ({ children }) => {
       return data;
     } catch {
       // Refresh failed — force logout
-      localStorage.removeItem("fashionHouseUser");
+      const key = getActiveStorageKey();
+      localStorage.removeItem(key);
       setUser(null);
       return null;
     }

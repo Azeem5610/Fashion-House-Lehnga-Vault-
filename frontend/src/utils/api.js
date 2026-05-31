@@ -4,6 +4,30 @@ const API = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
 });
 
+// ── Session-isolation helpers ──
+// Admin and customer sessions use separate localStorage keys so that
+// opening both panels in the same browser never cross-contaminates tokens.
+export const STORAGE_KEY_ADMIN = "fashionHouseUser_admin";
+export const STORAGE_KEY_CUSTOMER = "fashionHouseUser_customer";
+
+// Determine which storage key applies to the current page context
+export const getActiveStorageKey = () => {
+  return window.location.pathname.startsWith("/admin")
+    ? STORAGE_KEY_ADMIN
+    : STORAGE_KEY_CUSTOMER;
+};
+
+// Read the stored user for the current context
+export const getStoredUser = () => {
+  const key = getActiveStorageKey();
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 // Track if we're already refreshing to avoid infinite loops
 let isRefreshing = false;
 let failedQueue = [];
@@ -19,9 +43,9 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Attach token to every request
+// Attach token to every request — reads from the correct role-scoped key
 API.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem("fashionHouseUser"));
+  const user = getStoredUser();
   if (user?.token) {
     config.headers.Authorization = `Bearer ${user.token}`;
   }
@@ -33,6 +57,7 @@ API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const storageKey = getActiveStorageKey();
 
     // If 401 with TOKEN_EXPIRED code and we haven't retried yet
     if (
@@ -62,11 +87,11 @@ API.interceptors.response.use(
           { withCredentials: true }
         );
 
-        // Update stored user with new token
-        const stored = JSON.parse(localStorage.getItem("fashionHouseUser"));
+        // Update stored user with new token (role-scoped key)
+        const stored = JSON.parse(localStorage.getItem(storageKey));
         if (stored) {
           stored.token = data.token;
-          localStorage.setItem("fashionHouseUser", JSON.stringify(stored));
+          localStorage.setItem(storageKey, JSON.stringify(stored));
         }
 
         processQueue(null, data.token);
@@ -75,7 +100,7 @@ API.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         // Refresh failed — force logout
-        localStorage.removeItem("fashionHouseUser");
+        localStorage.removeItem(storageKey);
         if (window.location.pathname !== "/login") {
           window.location.href = "/login";
         }
@@ -87,7 +112,7 @@ API.interceptors.response.use(
 
     // For non-TOKEN_EXPIRED 401s (bad token, no token), logout immediately
     if (error.response?.status === 401) {
-      localStorage.removeItem("fashionHouseUser");
+      localStorage.removeItem(storageKey);
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }

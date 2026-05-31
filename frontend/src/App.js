@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 // Components
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminLayout from "./components/AdminLayout";
 
 // Pages — eager load critical pages
 import LoginPage from "./pages/LoginPage";
@@ -22,26 +21,44 @@ const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
 const DesignFromPicPage = lazy(() => import("./pages/DesignFromPicPage"));
 const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"));
 
-// Admin Pages
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
-const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
-const AdminDesignRequests = lazy(() => import("./pages/admin/AdminDesignRequests"));
-const AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
-const AdminPurchaseOrders = lazy(() => import("./pages/admin/AdminPurchaseOrders"));
-const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
-const AdminEmployees = lazy(() => import("./pages/admin/AdminEmployees"));
-const AdminMachinery = lazy(() => import("./pages/admin/AdminMachinery"));
-const AdminAppointments = lazy(() => import("./pages/admin/AdminAppointments"));
+// ── Admin module — only loaded when REACT_APP_ENABLE_ADMIN=true ──
+const ADMIN_ENABLED = process.env.REACT_APP_ENABLE_ADMIN === "true";
 
-// Phase 3 & 4 — New module pages
-const AdminOrderTracking = lazy(() => import("./pages/admin/AdminOrderTracking"));
-const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
+let AdminLayout = null;
+let AdminDashboard = null;
+let AdminProducts = null;
+let AdminOrders = null;
+let AdminDesignRequests = null;
+let AdminVendors = null;
+let AdminPurchaseOrders = null;
+let AdminInventory = null;
+let AdminEmployees = null;
+let AdminMachinery = null;
+let AdminAppointments = null;
+let AdminOrderTracking = null;
+let AdminReviews = null;
+let AdminCostEstimation = null;
+let AdminRentals = null;
+let AdminPayments = null;
 
-// Finance & Operations modules
-const AdminCostEstimation = lazy(() => import("./pages/admin/AdminCostEstimation"));
-const AdminRentals = lazy(() => import("./pages/admin/AdminRentals"));
-const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+if (ADMIN_ENABLED) {
+  AdminLayout = lazy(() => import("./components/AdminLayout"));
+  AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+  AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+  AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+  AdminDesignRequests = lazy(() => import("./pages/admin/AdminDesignRequests"));
+  AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
+  AdminPurchaseOrders = lazy(() => import("./pages/admin/AdminPurchaseOrders"));
+  AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
+  AdminEmployees = lazy(() => import("./pages/admin/AdminEmployees"));
+  AdminMachinery = lazy(() => import("./pages/admin/AdminMachinery"));
+  AdminAppointments = lazy(() => import("./pages/admin/AdminAppointments"));
+  AdminOrderTracking = lazy(() => import("./pages/admin/AdminOrderTracking"));
+  AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
+  AdminCostEstimation = lazy(() => import("./pages/admin/AdminCostEstimation"));
+  AdminRentals = lazy(() => import("./pages/admin/AdminRentals"));
+  AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+}
 
 // Customer Pages — lazy load
 const AppointmentPage = lazy(() => import("./pages/AppointmentPage"));
@@ -71,7 +88,10 @@ const RootRedirect = () => {
   const { user, loading } = useAuth();
   if (loading) return <PageLoader />;
   if (!user) return <Navigate to="/login" replace />;
-  if (ADMIN_ROLES.includes(user.role)) return <Navigate to="/admin" replace />;
+  // Only redirect to admin when admin module is enabled (local dev)
+  if (ADMIN_ENABLED && ADMIN_ROLES.includes(user.role)) {
+    return <Navigate to="/admin" replace />;
+  }
   return <WelcomePage />;
 };
 
@@ -134,34 +154,36 @@ function AppContent() {
             <ProtectedRoute><PaymentStatus /></ProtectedRoute>
           } />
 
-          {/* Admin Routes — role-based access */}
-          <Route path="/admin" element={
-            <ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="design-requests" element={<AdminDesignRequests />} />
-            <Route path="vendors" element={<AdminVendors />} />
-            <Route path="purchase-orders" element={<AdminPurchaseOrders />} />
+          {/* Admin Routes — only available when REACT_APP_ENABLE_ADMIN=true */}
+          {ADMIN_ENABLED && (
+            <Route path="/admin" element={
+              <ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>
+            }>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="design-requests" element={<AdminDesignRequests />} />
+              <Route path="vendors" element={<AdminVendors />} />
+              <Route path="purchase-orders" element={<AdminPurchaseOrders />} />
 
-            {/* Operations modules */}
-            <Route path="inventory" element={<AdminInventory />} />
-            <Route path="employees" element={<AdminEmployees />} />
-            <Route path="machinery" element={<AdminMachinery />} />
+              {/* Operations modules */}
+              <Route path="inventory" element={<AdminInventory />} />
+              <Route path="employees" element={<AdminEmployees />} />
+              <Route path="machinery" element={<AdminMachinery />} />
 
-            {/* Customer management modules */}
-            <Route path="appointments" element={<AdminAppointments />} />
+              {/* Customer management modules */}
+              <Route path="appointments" element={<AdminAppointments />} />
 
-            {/* Phase 3 — Order Tracking & Reviews */}
-            <Route path="order-tracking" element={<AdminOrderTracking />} />
-            <Route path="reviews" element={<AdminReviews />} />
+              {/* Phase 3 — Order Tracking & Reviews */}
+              <Route path="order-tracking" element={<AdminOrderTracking />} />
+              <Route path="reviews" element={<AdminReviews />} />
 
-            {/* Finance & Operations */}
-            <Route path="cost-estimation" element={<AdminCostEstimation />} />
-            <Route path="rentals" element={<AdminRentals />} />
-            <Route path="payments" element={<AdminPayments />} />
-          </Route>
+              {/* Finance & Operations */}
+              <Route path="cost-estimation" element={<AdminCostEstimation />} />
+              <Route path="rentals" element={<AdminRentals />} />
+              <Route path="payments" element={<AdminPayments />} />
+            </Route>
+          )}
 
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
