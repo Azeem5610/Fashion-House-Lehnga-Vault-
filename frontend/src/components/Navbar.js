@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { HiMenu, HiX, HiSparkles, HiLightningBolt } from "react-icons/hi";
+import { HiMenu, HiX, HiLightningBolt } from "react-icons/hi";
 import NotificationDropdown from "./NotificationDropdown";
 import "./Navbar.css";
 
