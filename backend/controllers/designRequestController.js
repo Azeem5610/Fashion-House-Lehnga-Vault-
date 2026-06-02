@@ -44,7 +44,11 @@ exports.createDesignRequest = async (req, res) => {
 exports.getMyDesignRequests = async (req, res) => {
   try {
     const requests = await DesignRequest.find({ user: req.user.id })
-      .populate("convertedOrder", "status totalPrice")
+      .populate({
+        path: "convertedOrder",
+        select: "status totalPrice rider",
+        populate: { path: "rider", select: "name phone vehicleType vehicleNumber" }
+      })
       .sort({ createdAt: -1 });
     res.json(requests);
   } catch (error) {
@@ -57,7 +61,11 @@ exports.getAllDesignRequests = async (req, res) => {
   try {
     const requests = await DesignRequest.find()
       .populate("user", "name email phone")
-      .populate("convertedOrder", "status totalPrice")
+      .populate({
+        path: "convertedOrder",
+        select: "status totalPrice rider",
+        populate: { path: "rider", select: "name phone vehicleType vehicleNumber" }
+      })
       .sort({ createdAt: -1 });
     res.json(requests);
   } catch (error) {

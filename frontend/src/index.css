@@ -388,7 +388,7 @@ ul, ol {
 
 .form-select {
   width: 100%;
-  padding: 11px 16px;
+  padding: 11px 36px 11px 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -398,7 +398,7 @@ ul, ol {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C2185B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 16px center;
+  background-position: right 12px center;
 }
 
 .form-select:focus {

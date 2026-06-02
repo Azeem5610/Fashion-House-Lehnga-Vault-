@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../utils/api";
-import { HiArrowLeft, HiCube, HiPhotograph, HiCalendar, HiTruck, HiX } from "react-icons/hi";
+import { HiArrowLeft, HiCube, HiPhotograph, HiCalendar, HiTruck, HiX, HiShoppingCart } from "react-icons/hi";
 import { GiDress } from "react-icons/gi";
 import { toast } from "react-toastify";
 import "./MyOrdersPage.css";
@@ -144,6 +144,14 @@ const MyOrdersPage = () => {
                         </strong>
                       </span>
                     </div>
+                    {order.rider && (
+                      <div className="order-meta">
+                        <span>
+                          🏍️ Rider: <strong>{order.rider.name}</strong> — {order.rider.phone}
+                          {order.rider.vehicleNumber && ` (Plate: ${order.rider.vehicleNumber})`}
+                        </span>
+                      </div>
+                    )}
                   </div>
                     <div className="order-card-right">
                       <span className={getStatusClass(order.status)}>{order.status}</span>
@@ -215,6 +223,32 @@ const MyOrdersPage = () => {
                         {" · "}
                         {formatDate(req.createdAt)}
                       </div>
+                      {req.convertedOrder && (
+                        <div style={{ marginTop: 12, borderTop: "1px dashed var(--border)", paddingTop: 10, textAlign: "left" }}>
+                          <span style={{ fontSize: "0.82rem", color: "var(--info)", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                            <HiShoppingCart /> Converted to Order · Status: {req.convertedOrder.status}
+                          </span>
+                          {req.convertedOrder.rider ? (
+                            <div style={{ marginTop: 6, fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                              🏍️ Delivery Rider: <strong>{req.convertedOrder.rider.name}</strong> ({req.convertedOrder.rider.phone})
+                              {req.convertedOrder.rider.vehicleNumber && ` [Plate: ${req.convertedOrder.rider.vehicleNumber}]`}
+                            </div>
+                          ) : (
+                            <div style={{ marginTop: 4, fontSize: "0.78rem", color: "var(--text-muted)", fontStyle: "italic" }}>
+                              Rider assignment pending
+                            </div>
+                          )}
+                          <div style={{ marginTop: 8 }}>
+                            <Link
+                              to={`/track-order/${req.convertedOrder._id}`}
+                              className="btn btn-sm btn-outline"
+                              style={{ display: "inline-flex", height: 28, padding: "0 10px", fontSize: "0.7rem", gap: 4 }}
+                            >
+                              <HiTruck /> Track Delivery
+                            </Link>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <span className={getStatusClass(req.status)}>{req.status}</span>

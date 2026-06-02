@@ -39,8 +39,12 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [riders, setRiders] = useState([]);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    fetchOrders();
+    fetchRiders();
+  }, []);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -51,11 +55,22 @@ const AdminOrders = () => {
     setLoading(false);
   };
 
+  const fetchRiders = async () => {
+    try {
+      const { data } = await API.get("/riders?status=available");
+      setRiders(data);
+    } catch (err) {
+      // Riders endpoint may fail if no riders exist yet — non-critical
+      console.error("Could not fetch riders:", err);
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
       await API.put(`/orders/${orderId}/status`, { status });
       toast.success("Order status updated! 🚚");
       fetchOrders();
+      fetchRiders();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update order status");
     }
@@ -68,6 +83,18 @@ const AdminOrders = () => {
       fetchOrders();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update payment status");
+    }
+  };
+
+  const handleAssignRider = async (orderId, riderId) => {
+    if (!riderId) return;
+    try {
+      await API.put(`/orders/${orderId}/status`, { riderId });
+      toast.success("Rider assigned successfully! 🏍️");
+      fetchOrders();
+      fetchRiders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to assign rider");
     }
   };
 
@@ -90,6 +117,16 @@ const AdminOrders = () => {
       o._id.includes(q)
     );
   }
+
+  // Build a list of riders available for assignment (available ones + the currently assigned rider for each order)
+  const getAssignableRiders = (order) => {
+    const available = riders.filter(r => r.status === "available");
+    // Include the currently assigned rider even if on-delivery (so it shows as selected)
+    if (order.rider && !available.find(r => r._id === order.rider._id)) {
+      available.unshift(order.rider);
+    }
+    return available;
+  };
 
   return (
     <div>
@@ -128,12 +165,13 @@ const AdminOrders = () => {
                 <th>City</th>
                 <th>Date</th>
                 <th>Payment Status</th>
+                <th>Rider</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>No orders found</td></tr>
+                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>No orders found</td></tr>
               ) : (
                 filtered.map((o) => (
                   <tr key={o._id}>
@@ -181,6 +219,73 @@ const AdminOrders = () => {
                         <option value="refunded">Refunded</option>
                         <option value="verification-failed">Verification Failed</option>
                       </select>
+                    </td>
+                    {/* Rider Assignment Column */}
+                    <td>
+                      {o.rider ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              padding: "3px 10px",
+                              borderRadius: 50,
+                              fontSize: "0.72rem",
+                              fontWeight: 700,
+                              background: "rgba(139,92,246,0.08)",
+                              color: "#8B5CF6",
+                              border: "1px solid rgba(139,92,246,0.15)",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            🏍️ {o.rider.name}
+                          </span>
+                          {o.status !== "delivered" && o.status !== "cancelled" && (
+                            <select
+                              value=""
+                              onChange={(e) => handleAssignRider(o._id, e.target.value)}
+                              className="form-select"
+                              style={{
+                                fontSize: "0.72rem",
+                                padding: "2px 6px",
+                                borderRadius: 4,
+                                width: "auto",
+                                cursor: "pointer",
+                                color: "var(--text-muted)",
+                              }}
+                            >
+                              <option value="">Change rider...</option>
+                              {getAssignableRiders(o).map((r) => (
+                                <option key={r._id} value={r._id}>
+                                  {r.name} ({r.vehicleType})
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      ) : (
+                        <select
+                          value=""
+                          onChange={(e) => handleAssignRider(o._id, e.target.value)}
+                          className="form-select"
+                          style={{
+                            fontSize: "0.78rem",
+                            padding: "4px 8px",
+                            borderRadius: 6,
+                            width: "auto",
+                            cursor: "pointer",
+                            color: "var(--text-muted)",
+                          }}
+                        >
+                          <option value="">Assign rider...</option>
+                          {riders.map((r) => (
+                            <option key={r._id} value={r._id}>
+                              {r.name} ({r.vehicleType})
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </td>
                     <td>
                       <select

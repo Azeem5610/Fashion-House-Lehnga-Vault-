@@ -21,8 +21,12 @@ const AdminDesignRequests = () => {
   const [quoteModal, setQuoteModal] = useState(null); // request object or null
   const [quoteForm, setQuoteForm] = useState({ quotedPrice: "", estimatedDays: "", adminNotes: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [riders, setRiders] = useState([]);
 
-  useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => {
+    fetchRequests();
+    fetchRiders();
+  }, []);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -31,6 +35,24 @@ const AdminDesignRequests = () => {
       setRequests(data);
     } catch (err) { console.error(err); }
     setLoading(false);
+  };
+
+  const fetchRiders = async () => {
+    try {
+      const { data } = await API.get("/riders?status=available");
+      setRiders(data);
+    } catch (err) {
+      console.error("Could not fetch riders:", err);
+    }
+  };
+
+  // Returns available riders + the currently assigned rider (so it stays selected)
+  const getAssignableRiders = (convertedOrder) => {
+    const available = riders.filter((r) => r.status === "available");
+    if (convertedOrder?.rider && !available.find((r) => r._id === convertedOrder.rider._id)) {
+      available.unshift(convertedOrder.rider);
+    }
+    return available;
   };
 
   const updateStatus = async (id, status) => {
@@ -81,6 +103,18 @@ const AdminDesignRequests = () => {
       fetchRequests();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to convert");
+    }
+  };
+
+  const assignRider = async (orderId, riderId) => {
+    if (!riderId) return;
+    try {
+      await API.put(`/orders/${orderId}/status`, { riderId });
+      toast.success("Rider assigned! 🏍️");
+      fetchRequests();
+      fetchRiders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to assign rider");
     }
   };
 
@@ -168,8 +202,54 @@ const AdminDesignRequests = () => {
                       </div>
                     )}
                     {r.convertedOrder && (
-                      <div style={{ fontSize: "0.8rem", color: "var(--info)", marginTop: 4 }}>
-                        <HiShoppingCart style={{ verticalAlign: "middle" }} /> Converted to Order · Status: {r.convertedOrder.status}
+                      <div style={{ fontSize: "0.8rem", color: "var(--info)", marginTop: 4, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                        <span>
+                          <HiShoppingCart style={{ verticalAlign: "middle", marginRight: 4 }} />
+                          Converted to Order · Status: <strong>{r.convertedOrder.status}</strong>
+                        </span>
+                        {r.convertedOrder.rider ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                            <span style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              padding: "2px 8px",
+                              borderRadius: 4,
+                              fontSize: "0.72rem",
+                              fontWeight: 600,
+                              background: "rgba(139,92,246,0.08)",
+                              color: "#8B5CF6",
+                              border: "1px solid rgba(139,92,246,0.12)"
+                            }}>
+                              🏍️ {r.convertedOrder.rider.name} ({r.convertedOrder.rider.phone})
+                            </span>
+                            {r.convertedOrder.status !== "delivered" && r.convertedOrder.status !== "cancelled" && (
+                              <select
+                                value=""
+                                onChange={(e) => assignRider(r.convertedOrder._id, e.target.value)}
+                                className="form-select"
+                                style={{ fontSize: "0.72rem", padding: "2px 28px 2px 6px", width: "auto", cursor: "pointer", color: "var(--text-muted)" }}
+                              >
+                                <option value="">Change rider...</option>
+                                {getAssignableRiders(r.convertedOrder).map((rd) => (
+                                  <option key={rd._id} value={rd._id}>{rd.name} ({rd.vehicleType})</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        ) : (
+                          <select
+                            value=""
+                            onChange={(e) => assignRider(r.convertedOrder._id, e.target.value)}
+                            className="form-select"
+                            style={{ fontSize: "0.78rem", padding: "4px 28px 4px 8px", width: "auto", cursor: "pointer", color: "var(--text-muted)" }}
+                          >
+                            <option value="">Assign rider...</option>
+                            {riders.map((rd) => (
+                              <option key={rd._id} value={rd._id}>{rd.name} ({rd.vehicleType})</option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                     )}
                   </div>

@@ -40,6 +40,7 @@ let AdminReviews = null;
 let AdminCostEstimation = null;
 let AdminRentals = null;
 let AdminPayments = null;
+let AdminRiders = null;
 
 if (ADMIN_ENABLED) {
   AdminLayout = lazy(() => import("./components/AdminLayout"));
@@ -58,6 +59,7 @@ if (ADMIN_ENABLED) {
   AdminCostEstimation = lazy(() => import("./pages/admin/AdminCostEstimation"));
   AdminRentals = lazy(() => import("./pages/admin/AdminRentals"));
   AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+  AdminRiders = lazy(() => import("./pages/admin/AdminRiders"));
 }
 
 // Customer Pages — lazy load
@@ -184,6 +186,7 @@ function AppContent() {
               <Route path="cost-estimation" element={<AdminCostEstimation />} />
               <Route path="rentals" element={<AdminRentals />} />
               <Route path="payments" element={<AdminPayments />} />
+              <Route path="riders" element={<AdminRiders />} />
             </Route>
           )}
 

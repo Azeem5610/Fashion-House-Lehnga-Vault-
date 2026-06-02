@@ -70,6 +70,11 @@ const orderSchema = new mongoose.Schema(
       default: null,
       index: true,
     },
+    rider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Rider",
+      default: null,
+    },
   },
   { timestamps: true }
 );

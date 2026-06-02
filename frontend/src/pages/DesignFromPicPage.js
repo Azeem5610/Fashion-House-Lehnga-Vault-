@@ -15,6 +15,9 @@ const DesignFromPicPage = () => {
   const [description, setDescription] = useState("");
   const [requestType, setRequestType] = useState("exact-copy");
   const [submitting, setSubmitting] = useState(false);
+  const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
+  const [submittedDescription, setSubmittedDescription] = useState("");
+  const [submittedRequestType, setSubmittedRequestType] = useState("exact-copy");
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -56,7 +59,10 @@ const DesignFromPicPage = () => {
       });
 
       toast.success("Design request submitted successfully!");
-      navigate("/my-orders");
+      // Save for WhatsApp dialog, then show dialog
+      setSubmittedDescription(description);
+      setSubmittedRequestType(requestType);
+      setShowWhatsAppDialog(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to submit");
     }
@@ -64,8 +70,8 @@ const DesignFromPicPage = () => {
   };
 
   const handleWhatsApp = () => {
-    const typeText = requestType === "exact-copy" ? "exact copy" : "with customizations";
-    const message = `Hi! I want to order a lehnga (${typeText}).\n\n${description ? `My requirements:\n${description}` : "I'll share reference images here."}\n\nI've also submitted a design request on your website.`;
+    const typeText = submittedRequestType === "exact-copy" ? "exact copy" : "with customizations";
+    const message = `Hi! I want to order a lehnga (${typeText}).\n\n${submittedDescription ? `My requirements:\n${submittedDescription}` : "I'll share reference images here."}\n\nI've also submitted a design request on your website.`;
     window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
@@ -165,17 +171,42 @@ const DesignFromPicPage = () => {
               >
                 {submitting ? "Submitting..." : "Submit Request"}
               </button>
-              <button
-                type="button"
-                className="btn btn-whatsapp btn-lg"
-                onClick={handleWhatsApp}
-              >
-                <FaWhatsapp /> Also Contact on WhatsApp
-              </button>
             </div>
           </form>
         </div>
       </div>
+
+      {/* WhatsApp Dialog */}
+      {showWhatsAppDialog && (
+        <div className="wa-dialog-overlay">
+          <div className="wa-dialog">
+            <div className="wa-dialog-icon">✅</div>
+            <h3>Request Submitted!</h3>
+            <p>Your design request has been received. Would you also like to discuss it directly with us on WhatsApp for faster assistance?</p>
+            <div className="wa-dialog-actions">
+              <button
+                className="btn btn-whatsapp btn-lg"
+                onClick={() => {
+                  handleWhatsApp();
+                  setShowWhatsAppDialog(false);
+                  navigate("/my-orders");
+                }}
+              >
+                <FaWhatsapp /> Discuss on WhatsApp
+              </button>
+              <button
+                className="btn btn-outline btn-lg"
+                onClick={() => {
+                  setShowWhatsAppDialog(false);
+                  navigate("/my-orders");
+                }}
+              >
+                No Thanks
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

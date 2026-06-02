@@ -93,6 +93,9 @@ app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/cost-estimations", require("./routes/costEstimationRoutes"));
 app.use("/api/rentals", require("./routes/rentalRoutes"));
 
+// Rider / Delivery Module
+app.use("/api/riders", require("./routes/riderRoutes"));
+
 // SafePay Payment Integration Routes
 app.use("/api/payments", require("./routes/paymentRoutes"));
 

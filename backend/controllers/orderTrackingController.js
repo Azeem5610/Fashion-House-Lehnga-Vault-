@@ -61,6 +61,7 @@ exports.getTrackingByOrder = async (req, res) => {
         populate: [
           { path: "product", select: "name images price" },
           { path: "user", select: "name email" },
+          { path: "rider", select: "name phone vehicleType vehicleNumber" },
         ],
       })
       .populate("stages.assignedTo", "user");

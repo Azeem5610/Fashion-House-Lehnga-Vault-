@@ -39,6 +39,7 @@ const NAV_SECTIONS = [
       { path: "/admin/orders", label: "Orders", icon: <HiShoppingCart />, roles: ["superadmin", "productionManager"] },
       { path: "/admin/design-requests", label: "Design Requests", icon: <HiPhotograph />, roles: ["superadmin", "productionManager"] },
       { path: "/admin/order-tracking", label: "Order Tracking", icon: <HiTruck />, roles: ["superadmin", "productionManager", "tailor"] },
+      { path: "/admin/riders", label: "Riders", icon: <HiTruck />, roles: ["superadmin", "productionManager"] },
     ],
   },
   {

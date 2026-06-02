@@ -1,0 +1,202 @@
+/* ── Admin Riders Page Styles ── */
+
+.riders-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.riders-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.riders-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.riders-stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.riders-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Modal */
+.rider-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.rider-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  width: 90%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.25s ease;
+}
+
+.rider-modal h2 {
+  margin-bottom: 20px;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.rider-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.rider-form-grid .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.rider-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* Status Badges */
+.rider-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.rider-status-badge.available {
+  background: rgba(46, 125, 50, 0.08);
+  color: #2E7D32;
+  border: 1px solid rgba(46, 125, 50, 0.15);
+}
+
+.rider-status-badge.on-delivery {
+  background: rgba(245, 127, 23, 0.08);
+  color: #F57F17;
+  border: 1px solid rgba(245, 127, 23, 0.15);
+}
+
+.rider-status-badge.off-duty {
+  background: rgba(120, 120, 120, 0.08);
+  color: #787878;
+  border: 1px solid rgba(120, 120, 120, 0.15);
+}
+
+/* Vehicle badge */
+.rider-vehicle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(139, 92, 246, 0.08);
+  color: #8B5CF6;
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  text-transform: capitalize;
+}
+
+/* Toolbar */
+.riders-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.riders-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+}
+
+.riders-search-box input {
+  border: none;
+  background: transparent;
+  padding-left: 0;
+  box-shadow: none;
+}
+
+/* Table tweaks */
+.rider-actions-cell {
+  display: flex;
+  gap: 6px;
+}
+
+.rider-actions-cell button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.rider-actions-cell button:hover {
+  background: var(--rose);
+  color: #fff;
+  border-color: var(--rose);
+}
+
+.rider-actions-cell button.btn-delete:hover {
+  background: #D32F2F;
+  border-color: #D32F2F;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

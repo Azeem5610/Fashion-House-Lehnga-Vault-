@@ -3,6 +3,7 @@ const Product = require("../models/Product");
 const OrderTracking = require("../models/OrderTracking");
 const Payment = require("../models/Payment");
 const PaymentLog = require("../models/PaymentLog");
+const Rider = require("../models/Rider");
 const paymentService = require("../services/paymentService");
 const { createAndEmit } = require("./notificationController");
 
@@ -77,6 +78,7 @@ exports.getMyOrders = async (req, res) => {
     const orders = await Order.find({ user: req.user.id })
       .populate("product", "name images price category")
       .populate("payment")
+      .populate("rider", "name phone vehicleType vehicleNumber")
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -91,6 +93,7 @@ exports.getAllOrders = async (req, res) => {
       .populate("product", "name images price category")
       .populate("user", "name email phone")
       .populate("payment")
+      .populate("rider", "name phone vehicleType vehicleNumber status")
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -104,7 +107,8 @@ exports.getOrderById = async (req, res) => {
     const order = await Order.findById(req.params.id)
       .populate("product", "name images price category sizes")
       .populate("user", "name email phone")
-      .populate("payment");
+      .populate("payment")
+      .populate("rider", "name phone vehicleType vehicleNumber status");
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     // Verify ownership
@@ -129,6 +133,7 @@ exports.updateOrderStatus = async (req, res) => {
 
     const previousStatus = order.status;
     const newStatus = req.body.status;
+    const riderId = req.body.riderId;
     const newPaymentStatus = req.body.paymentStatus;
 
     if (newPaymentStatus) {
@@ -154,6 +159,20 @@ exports.updateOrderStatus = async (req, res) => {
         return res.status(400).json({ message: "Cannot confirm order without completed payment or Cash on Delivery pending" });
       }
       order.status = newStatus;
+    }
+
+    // ── Rider assignment ──
+    if (riderId) {
+      const rider = await Rider.findById(riderId);
+      if (rider && rider.isActive) {
+        // Release previous rider if swapping
+        if (order.rider && order.rider.toString() !== riderId) {
+          await Rider.findByIdAndUpdate(order.rider, { status: "available" });
+        }
+        order.rider = riderId;
+        rider.status = "on-delivery";
+        await rider.save();
+      }
     }
 
     await order.save();
@@ -184,7 +203,7 @@ exports.updateOrderStatus = async (req, res) => {
       }
     }
 
-    // If delivered, complete all tracking stages
+    // If delivered, complete all tracking stages and release rider
     if (newStatus === "delivered") {
       const tracking = await OrderTracking.findOne({ order: order._id });
       if (tracking) {
@@ -196,6 +215,14 @@ exports.updateOrderStatus = async (req, res) => {
         });
         tracking.currentStage = "Delivered";
         await tracking.save();
+      }
+
+      // Release rider and increment delivery count
+      if (order.rider) {
+        await Rider.findByIdAndUpdate(order.rider, {
+          status: "available",
+          $inc: { totalDeliveries: 1 },
+        });
       }
     }
 

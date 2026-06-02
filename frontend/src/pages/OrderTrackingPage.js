@@ -176,6 +176,99 @@ const OrderTrackingPage = () => {
           </div>
         </div>
 
+        {/* Rider Info Card — shown when a rider is assigned */}
+        {order?.rider && (
+          <div
+            className="tracking-rider-card"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              padding: "16px 20px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              borderRadius: 12,
+              marginBottom: 24,
+              animation: "fadeInUp 0.4s ease",
+            }}
+          >
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, var(--rose), var(--gold))",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1.3rem",
+                flexShrink: 0,
+              }}
+            >
+              🏍️
+            </div>
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  color: "var(--text-muted)",
+                  fontWeight: 600,
+                  marginBottom: 2,
+                }}
+              >
+                Delivery Rider
+              </div>
+              <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "1rem" }}>
+                {order.rider.name}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.82rem",
+                  color: "var(--text-secondary)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginTop: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <span>📞 {order.rider.phone}</span>
+                {order.rider.vehicleType && (
+                  <span style={{
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    background: "rgba(139,92,246,0.08)",
+                    color: "#8B5CF6",
+                    border: "1px solid rgba(139,92,246,0.12)",
+                    textTransform: "capitalize",
+                  }}>
+                    {order.rider.vehicleType}
+                  </span>
+                )}
+                {order.rider.vehicleNumber && (
+                  <span style={{
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    background: "rgba(16,185,129,0.08)",
+                    color: "#10B981",
+                    border: "1px solid rgba(16,185,129,0.12)",
+                    fontFamily: "monospace",
+                  }}>
+                    Plate: {order.rider.vehicleNumber}
+                  </span>
+                )}
+              </div>
+            </div>
+            <HiTruck style={{ fontSize: "1.5rem", color: "var(--rose)", opacity: 0.6 }} />
+          </div>
+        )}
+
         {/* Timeline */}
         <div className="tracking-timeline">
           {tracking.stages.map((stage, idx) => (
