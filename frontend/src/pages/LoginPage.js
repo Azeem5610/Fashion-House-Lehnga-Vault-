@@ -28,7 +28,7 @@ const LoginPage = () => {
         navigate("/");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      setError(err.response?.data?.message || err.message || "Something went wrong");
     }
     setLoading(false);
   };

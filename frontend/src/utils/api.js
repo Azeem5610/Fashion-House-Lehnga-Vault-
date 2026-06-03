@@ -17,6 +17,17 @@ export const getActiveStorageKey = () => {
     : STORAGE_KEY_CUSTOMER;
 };
 
+// Admin/staff roles that use the admin session
+const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
+
+// Get session type string for backend cookie scoping
+export const getSessionType = (role) =>
+  ADMIN_ROLES.includes(role) ? "admin" : "customer";
+
+// Get session type based on current page context (fallback when no user/role available)
+export const getActiveSessionType = () =>
+  window.location.pathname.startsWith("/admin") ? "admin" : "customer";
+
 // Read the stored user for the current context
 export const getStoredUser = () => {
   const key = getActiveStorageKey();
@@ -81,8 +92,9 @@ API.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        const sessionType = getActiveSessionType();
         const { data } = await axios.post(
-          `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/auth/refresh-token`,
+          `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/auth/refresh-token?sessionType=${sessionType}`,
           {},
           { withCredentials: true }
         );

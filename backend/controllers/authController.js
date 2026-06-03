@@ -5,6 +5,24 @@ const crypto = require("crypto");
 const sendEmail = require("../services/emailService");
 const TokenBlacklist = require("../models/TokenBlacklist");
 
+// ─── Session Isolation ────────────────────────────────────────
+// Admin and customer sessions get separate httpOnly cookies so that
+// opening both panels in the same browser never cross-contaminates.
+const ADMIN_ROLES = ["superadmin", "inventoryManager", "productionManager", "tailor"];
+
+const getCookieName = (role) =>
+  ADMIN_ROLES.includes(role) ? "refreshToken_admin" : "refreshToken_customer";
+
+const getSessionType = (role) =>
+  ADMIN_ROLES.includes(role) ? "admin" : "customer";
+
+const cookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+});
+
 
 // ─── Token Helpers ────────────────────────────────────────────
 const generateAccessToken = (user) => {
@@ -50,13 +68,8 @@ exports.register = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Set refresh token as httpOnly cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
+    // Set refresh token as httpOnly cookie (always "customer" for registration)
+    res.cookie(getCookieName(user.role), refreshToken, cookieOptions());
 
     res.status(201).json({
       _id: user._id,
@@ -65,6 +78,7 @@ exports.register = async (req, res) => {
       phone: user.phone,
       avatar: user.avatar,
       role: user.role,
+      sessionType: getSessionType(user.role),
       token,
     });
   } catch (error) {
@@ -105,13 +119,8 @@ exports.login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Set refresh token as httpOnly cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    // Set role-scoped refresh token cookie
+    res.cookie(getCookieName(user.role), refreshToken, cookieOptions());
 
     res.json({
       _id: user._id,
@@ -120,6 +129,7 @@ exports.login = async (req, res) => {
       phone: user.phone,
       avatar: user.avatar,
       role: user.role,
+      sessionType: getSessionType(user.role),
       token,
     });
   } catch (error) {
@@ -133,13 +143,20 @@ exports.signup = exports.register;
 // ─── REFRESH TOKEN ─────────────────────────────────────────────
 exports.refreshToken = async (req, res) => {
   try {
-    const { refreshToken } = req.cookies;
+    // Determine which scoped cookie to read based on sessionType query param
+    const sessionType = req.query.sessionType || req.body.sessionType;
+    const cookieName = sessionType === "admin" ? "refreshToken_admin" : "refreshToken_customer";
+    const refreshToken = req.cookies[cookieName];
 
-    if (!refreshToken) {
+    // Fallback: try the old unscoped cookie name for backward compat
+    const fallbackToken = !refreshToken ? req.cookies.refreshToken : null;
+    const tokenToUse = refreshToken || fallbackToken;
+
+    if (!tokenToUse) {
       return res.status(401).json({ message: "No refresh token" });
     }
 
-    const user = await User.findOne({ refreshToken }).select("+refreshToken");
+    const user = await User.findOne({ refreshToken: tokenToUse }).select("+refreshToken");
     if (!user) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
@@ -155,12 +172,14 @@ exports.refreshToken = async (req, res) => {
     user.refreshToken = newRefreshToken;
     await user.save();
 
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    // Set the new scoped cookie
+    const newCookieName = getCookieName(user.role);
+    res.cookie(newCookieName, newRefreshToken, cookieOptions());
+
+    // If we used the old unscoped cookie, clear it
+    if (fallbackToken) {
+      res.cookie("refreshToken", "", { ...cookieOptions(), maxAge: 0, expires: new Date(0) });
+    }
 
     res.json({
       _id: user._id,
@@ -169,6 +188,7 @@ exports.refreshToken = async (req, res) => {
       phone: user.phone,
       avatar: user.avatar,
       role: user.role,
+      sessionType: getSessionType(user.role),
       token: newAccessToken,
     });
   } catch (error) {
@@ -205,13 +225,14 @@ exports.logout = async (req, res) => {
       await User.findByIdAndUpdate(req.user.id, { refreshToken: null });
     }
 
-    // Clear cookie
-    res.cookie("refreshToken", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      expires: new Date(0),
-    });
+    // Clear the role-scoped cookie
+    const sessionType = req.query.sessionType;
+    const cookieName = sessionType === "admin" ? "refreshToken_admin" : "refreshToken_customer";
+    const clearOpts = { ...cookieOptions(), maxAge: 0, expires: new Date(0) };
+
+    res.cookie(cookieName, "", clearOpts);
+    // Also clear old unscoped cookie for backward compat
+    res.cookie("refreshToken", "", clearOpts);
 
     res.json({ message: "Logged out successfully" });
   } catch (error) {

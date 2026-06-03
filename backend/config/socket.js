@@ -6,9 +6,25 @@ const jwt = require("jsonwebtoken");
  * and room-based channels per user.
  */
 function initSocket(server) {
+  // Support comma-separated CLIENT_URL and any *.vercel.app origin
+  const allowedOrigins = ["http://localhost:3000"];
+  if (process.env.CLIENT_URL) {
+    process.env.CLIENT_URL.split(",").forEach(url => allowedOrigins.push(url.trim()));
+  }
+
   const io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:3000",
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const isAllowed = allowedOrigins.some(a => origin.replace(/\/$/, "") === a.replace(/\/$/, ""));
+        const isVercel = /\.vercel\.app$/.test(origin);
+        const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(origin);
+        if (isAllowed || isVercel || isLocalhost) {
+          callback(null, true);
+        } else {
+          callback(new Error(`Socket origin ${origin} not allowed`));
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true,
     },

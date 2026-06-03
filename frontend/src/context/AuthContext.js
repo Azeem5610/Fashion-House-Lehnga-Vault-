@@ -3,6 +3,8 @@ import API, {
   STORAGE_KEY_ADMIN,
   STORAGE_KEY_CUSTOMER,
   getActiveStorageKey,
+  getSessionType,
+  getActiveSessionType,
 } from "../utils/api";
 
 const AuthContext = createContext();
@@ -45,15 +47,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await API.post("/auth/login", { email, password });
-    
-    // Block admin logins if the admin panel is disabled on this environment (e.g. Vercel)
-    const isAdminRole = ADMIN_ROLES.includes(data.role);
-    const isLocalAdminEnabled = process.env.REACT_APP_ENABLE_ADMIN === "true";
-    
-    if (isAdminRole && !isLocalAdminEnabled) {
-      throw new Error("Admin login is disabled on this environment. Please run the admin panel locally.");
-    }
-
     persistUser(data);
     return data;
   };
@@ -73,7 +66,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await API.post("/auth/logout");
+      // Pass sessionType so the backend clears the correct scoped cookie
+      const sessionType = user ? getSessionType(user.role) : getActiveSessionType();
+      await API.post(`/auth/logout?sessionType=${sessionType}`);
     } catch {
       // Continue logout even if API call fails
     }
@@ -93,7 +88,8 @@ export const AuthProvider = ({ children }) => {
 
   const refreshToken = async () => {
     try {
-      const { data } = await API.post("/auth/refresh-token");
+      const sessionType = user ? getSessionType(user.role) : getActiveSessionType();
+      const { data } = await API.post(`/auth/refresh-token?sessionType=${sessionType}`);
       persistUser(data);
       return data;
     } catch {
