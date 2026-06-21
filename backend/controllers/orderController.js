@@ -227,7 +227,7 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     // ── Send notification to customer ──
-    if (order.user && previousStatus !== newStatus) {
+    if (order.user && newStatus && previousStatus !== newStatus) {
       const statusMessages = {
         "confirmed": "Your order has been confirmed! We're preparing it for production.",
         "in-production": "Your order has entered the production pipeline!",
