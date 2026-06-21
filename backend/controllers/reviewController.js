@@ -1,6 +1,5 @@
 const Review = require("../models/Review");
 const Product = require("../models/Product");
-const Order = require("../models/Order");
 const { cloudinary } = require("../config/cloudinary");
 
 // CREATE review (customer)
@@ -11,18 +10,6 @@ exports.createReview = async (req, res) => {
     // Verify product exists
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: "Product not found" });
-
-    // Check if user has ordered this product (only verified purchasers)
-    const hasOrdered = await Order.findOne({
-      user: req.user.id,
-      product: productId,
-      status: { $ne: "cancelled" },
-    });
-    if (!hasOrdered) {
-      return res.status(403).json({
-        message: "You can only review products you have purchased",
-      });
-    }
 
     // Check for existing review
     const existingReview = await Review.findOne({

@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 // Components
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CookieConsent from "./components/CookieConsent";
 
 // Pages — eager load critical pages
 import LoginPage from "./pages/LoginPage";
@@ -179,6 +180,7 @@ function App() {
       <AuthProvider>
         <NotificationProvider>
           <AppContent />
+          <CookieConsent />
           <ToastContainer
             position="top-right"
             autoClose={3000}
